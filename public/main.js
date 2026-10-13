@@ -447,8 +447,42 @@ addEventListener('online', () => {
 addEventListener('offline', atualizarAviso);
 atualizarAviso();
 
+// ---------- atualização do app ----------
+// O service worker novo se instala e assume sozinho (sw.js), mas esta tela continua com o código
+// antigo até recarregar. Quando isso acontece, aparece o botão "Atualizar".
+
+function mostrarAtualizacao() {
+  $('#atualizar').hidden = false;
+}
+
+$('#botao-atualizar').onclick = (e) => {
+  e.currentTarget.disabled = true;
+  e.currentTarget.textContent = 'Atualizando…';
+  location.reload();
+};
+
 if ('serviceWorker' in navigator) {
-  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  // Na primeira instalação ainda não há controlador: não é "atualização", então não avisa.
+  const jaTinhaControle = Boolean(navigator.serviceWorker.controller);
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (jaTinhaControle) mostrarAtualizacao();
+  });
+
+  addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('sw.js')
+      .then((registro) => {
+        // O navegador só confere versão nova de vez em quando; aqui confere ao voltar para o app,
+        // ao recuperar a internet e a cada 30 minutos com o app aberto.
+        const conferir = () => registro.update().catch(() => {});
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) conferir();
+        });
+        addEventListener('online', conferir);
+        setInterval(conferir, 30 * 60 * 1000);
+      })
+      .catch(() => {});
+  });
 }
 
 boasVindas();

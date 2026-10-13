@@ -196,3 +196,28 @@ select {
 
 /* ações destrutivas (excluir) */
 .cartao button.perigo { color: var(--erro); }
+
+/* aviso de nova versão do app */
+#atualizar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 var(--margem) 8px;
+  padding: 4px 4px 4px 14px;
+  background: var(--painel-2);
+  border: 1px solid var(--destaque);
+  border-radius: 12px;
+  font-size: 14px;
+}
+#atualizar button {
+  min-height: var(--toque);
+  padding: 0 18px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--destaque);
+  color: #0b1a10;
+  font: inherit;
+  font-weight: 600;
+}
+#atualizar button:disabled { opacity: .6; }
