@@ -33,6 +33,20 @@ Publique em produção:
 npx vercel --prod
 ```
 
+### Frases novas (para ensinar as regras)
+
+O app guarda no Notion as frases que as regras do chat não entendem, no banco **Frases novas** (já criado ao lado dos outros dois). **Conecte a integração a ele**, como no passo 1.3: abra o banco **Frases novas** → menu `•••` → **Conexões** → adicione a mesma integração. Sem isso o app continua funcionando, só não guarda as frases (o `/api/saude` mostra `frases: erro`). Como usar: [scripts/README.md](../scripts/README.md).
+
+### (Opcional) Ajuda do Claude no chat
+
+Se quiser que o chat entenda frases livres, crie uma chave em https://console.anthropic.com/ e cadastre:
+
+```
+npx vercel env add ANTHROPIC_API_KEY
+```
+
+Marque Production e publique de novo (mescle um PR ou rode `npx vercel --prod`). Sem essa variável o chat usa só as regras. Custo, privacidade e como funciona: [README.md](README.md#ajuda-do-claude-no-chat-opcional). **A chave é uma senha: nunca no código, no chat nem no git.**
+
 ## 3. Conferir a ligação com o Notion
 
 O endereço de produção aparece no final do comando. Teste (troque pelo seu endereço e pelo seu código):

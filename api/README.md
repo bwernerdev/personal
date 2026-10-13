@@ -13,11 +13,11 @@ Funções serverless da Vercel: **um arquivo = uma rota** (`api/dia.js` → `/ap
 
 | Rota | Método | O que faz |
 |---|---|---|
-| `/api/chat` | POST `{ texto, usarRotina?, forcar?, hoje? }` | Interpreta e **grava só se tudo foi entendido**. Respostas: `ok` (cada registro volta com `id`), `precisa_resposta` (perguntas, nada gravado), `duplicado` (já existe igual; `forcar: true` grava mesmo assim), `erro_parcial`. `hoje` (AAAA-MM-DD) é a data de quando foi digitado, usada nos registros guardados sem internet (aceita até 30 dias atrás) |
+| `/api/chat` | POST `{ texto, usarRotina?, forcar?, hoje? }` | Interpreta e **grava só se tudo foi entendido**. Respostas: `ok` (cada registro volta com `id`), `precisa_resposta` (perguntas, nada gravado), `duplicado` (já existe igual; `forcar: true` grava mesmo assim), `sugestao` (o Claude reescreveu a frase: traz `texto_sugerido`, `registros` de prévia, `pronto`, `pendentes` e `hoje`; **nada é gravado**, quem confirma reenvia `texto_sugerido` como mensagem normal), `erro_parcial`. Em `precisa_resposta` pode vir `ajuda` (mensagem do Claude pedindo o que faltou). `hoje` (AAAA-MM-DD) é a data de quando foi digitado, usada nos registros guardados sem internet (aceita até 30 dias atrás) |
 | `/api/apagar` | POST `{ id }` | Manda um registro do banco Treinos para a lixeira (no Notion dá para restaurar). Recusa páginas de outros bancos |
 | `/api/dia` | GET `?treino=` | Rotina do treino escolhido (ou o próximo do ciclo) com o último registro de cada exercício; também traz `catalogo`, `grupos` e `grupoDoExercicio` (filtro por tipo do Histórico) |
 | `/api/historico` | GET `?exercicio=` | Registros passados de um exercício, do mais recente para o mais antigo (cada um com `id`) |
-| `/api/saude` | GET | Confere se o servidor lê os dois bancos do Notion (use depois de publicar) |
+| `/api/saude` | GET | Confere se o servidor lê os bancos do Notion (Rotina, Treinos e Frases novas; use depois de publicar) |
 
 ## Como adicionar uma rota
 

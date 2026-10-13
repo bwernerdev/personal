@@ -1,32 +1,65 @@
 import { rota } from '../lib/http.js';
 import { interpretar } from '../lib/parser.js';
 import { hojeSP, hojeInformado } from '../lib/datas.js';
-import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio } from '../lib/store.js';
+import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase } from '../lib/store.js';
 import { jaRegistrado } from '../lib/treino-do-dia.js';
+import { habilitado as iaDisponivel, sugerir } from '../lib/claude.js';
+
+// Guarda a frase que as regras não resolveram (para ensiná-las depois: scripts/frases.js). Nunca atrapalha
+// o chat: erro ou demora de mais (4 s) só vão para o log.
+async function anotarFraseNova(dados) {
+  try {
+    await Promise.race([anotarFrase(dados), new Promise((_, rejeitar) => setTimeout(() => rejeitar(new Error('tempo esgotado')), 4000))]);
+  } catch (e) {
+    console.error(`Frases novas: ${e.message}`);
+  }
+}
 
 // POST { texto, usarRotina?, forcar?, hoje? }
 // Só grava quando TUDO foi entendido; se algo faltar, devolve as perguntas e não grava nada.
 // `hoje` (AAAA-MM-DD) vem do celular quando o registro ficou guardado sem internet: "ontem" e "seg"
 // valem a partir do dia em que foi digitado, não do dia em que chegou aqui.
 // Registro idêntico a um que já existe não é gravado de novo, a menos que venha `forcar`.
+// Se as regras não entendem o texto e há ANTHROPIC_API_KEY, o Claude propõe uma reescrita
+// (status "sugestao"): ela NUNCA é gravada direto; o app mostra e o usuário confirma (lib/claude.js).
 export default rota('POST', async (req) => {
   const { texto, usarRotina = false, forcar = false, hoje } = req.body || {};
   if (!texto || !String(texto).trim()) return { status: 'vazio' };
 
   const rotina = await listarRotina();
-  const r = interpretar(texto, {
-    rotina,
-    hoje: hojeInformado(hoje, hojeSP()),
-    usarRotina: Boolean(usarRotina),
-  });
+  const dia = hojeInformado(hoje, hojeSP());
+  const r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina) });
 
   if (!r.pronto) {
-    return {
-      status: 'precisa_resposta',
-      pendentes: r.pendentes,
-      erros: r.erros,
-      entendidos: r.registros.length,
-    };
+    // Pergunta de falta de carga/séries e dúvida entre exercícios são das regras; o Claude só ajuda
+    // quando o texto não foi entendido (erro) ou os números estão confusos.
+    const naoEntendeu = r.erros.length > 0 || r.pendentes.some((p) => p.tipo === 'confuso');
+    const confirmou = r.pendentes.find((p) => p.tipo === 'confirmar_exercicio');
+    const motivo = r.erros[0] ?? (naoEntendeu ? 'números que não fecham' : confirmou?.mensagem);
+
+    // Resposta que o usuário vai ver; o que sobrar vai para "Frases novas" antes de responder.
+    let resposta = { status: 'precisa_resposta', pendentes: r.pendentes, erros: r.erros, entendidos: r.registros.length };
+    let resultado = confirmou && !naoEntendeu ? 'Pediu confirmação' : 'Sem ajuda do Claude';
+    let sugestao = null;
+
+    if (naoEntendeu && iaDisponivel()) {
+      const ajuda = await sugerir({ texto, rotina, hoje: dia });
+      resultado = 'Claude não entendeu';
+      if (ajuda?.tipo === 'nao_entendi') {
+        resposta = { ...resposta, ajuda: ajuda.mensagem };
+      } else if (ajuda?.tipo === 'texto') {
+        const novo = interpretar(ajuda.texto, { rotina, hoje: dia });
+        // Serve reescrita sem erro que já tem registros OU só perguntas das regras (ex.: falta a carga).
+        if (novo.erros.length === 0 && (novo.registros.length > 0 || novo.pendentes.length > 0)) {
+          resposta = { status: 'sugestao', origem: 'ia', hoje: dia, texto_sugerido: ajuda.texto, pronto: novo.pronto, registros: novo.registros, pendentes: novo.pendentes };
+          resultado = 'Claude sugeriu';
+          sugestao = ajuda.texto;
+        }
+      }
+    }
+
+    if (naoEntendeu || confirmou) await anotarFraseNova({ frase: texto, resultado, motivo, sugestao, hoje: dia });
+    return resposta;
   }
 
   const antes = await listarTreinos(); // lido antes de gravar, para mostrar "da última vez"

@@ -2,12 +2,13 @@
 
 App de treino para o celular: você escreve o que fez por **palavras-chave** (`peito: inc 24 5x10`), ele registra no **Notion** e mostra, na hora de treinar, **o que você fez da última vez** em cada exercício.
 
-É um site que vira app no iPhone (**Compartilhar → Adicionar à Tela de Início**). Não usa a API do Claude: o chat é um interpretador de regras, então não há custo de IA.
+É um site que vira app no iPhone (**Compartilhar → Adicionar à Tela de Início**). O chat é um interpretador de regras (grátis, funciona offline). **Opcionalmente**, com uma chave da API do Claude no servidor, o Claude ajuda só quando as regras não entendem a frase — e nunca grava sozinho (ver abaixo).
 
 ## O que o app faz
 
 - **Registra por chat:** `peito: inc 24 5x10, cross 15 4x12`. Aceita apelidos em português (`supino maquina`, `gemeos`), plural e um erro de digitação quando só há uma opção; se houver dúvida, pergunta e não grava nada.
 - **Cargas diferentes por série:** `puxada 50x12 50x10 45x10`.
+- **Ajuda do Claude (opcional):** frases livres como "hoje fiz supino inclinado com 24 quilos, cinco séries de dez". O Claude reescreve no formato do app, o app mostra "Entendi assim" e você confirma. Sem `ANTHROPIC_API_KEY` essa parte fica desligada.
 - **Mostra o último treino** de cada exercício na tela "Treino do dia" e no Histórico.
 - **Desfazer / Excluir:** manda o registro para a lixeira do Notion.
 - **Não grava duas vezes** o mesmo texto reenviado (pergunta antes).
@@ -34,6 +35,7 @@ iPhone (PWA)  ──►  /api (funções na Vercel)  ──►  Notion
 | `api/` | As rotas da API (uma função por arquivo) | [api/README.md](api/README.md) |
 | `lib/` | Regras do projeto: interpretador, Notion, treino do dia | [lib/README.md](lib/README.md) |
 | `data/` | Cópia da rotina para testes locais | [data/README.md](data/README.md) |
+| `scripts/` | Utilitários de linha de comando (ex.: ler as frases que as regras não entenderam) | [scripts/README.md](scripts/README.md) |
 | `docs/` | Formato das palavras-chave, modelo de dados, publicação | [docs/README.md](docs/README.md) |
 
 ## Primeiros passos

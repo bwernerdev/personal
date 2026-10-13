@@ -3,3 +3,4 @@
 server.js
 data/treinos.local.json
 *.test.js
+scripts/

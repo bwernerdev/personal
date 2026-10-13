@@ -1,5 +1,5 @@
 import { rota } from '../lib/http.js';
-import { listarRotina, listarTreinos, modoTeste } from '../lib/store.js';
+import { listarRotina, listarTreinos, listarFrases, modoTeste } from '../lib/store.js';
 
 // GET: confere se o servidor consegue ler os dois bancos do Notion.
 export default rota('GET', async () => {
@@ -13,6 +13,11 @@ export default rota('GET', async () => {
     resultado.treinos = `${(await listarTreinos()).length} registros`;
   } catch (e) {
     resultado.treinos = `erro: ${e.message}`;
+  }
+  try {
+    resultado.frases = `${(await listarFrases()).length} pendentes de ensinar às regras`;
+  } catch (e) {
+    resultado.frases = `erro: ${e.message} (conecte a integração ao banco "Frases novas")`;
   }
   return resultado;
 });
