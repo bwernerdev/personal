@@ -4,6 +4,17 @@ App de treino para o celular: você escreve o que fez por **palavras-chave** (`p
 
 É um site que vira app no iPhone (**Compartilhar → Adicionar à Tela de Início**). Não usa a API do Claude: o chat é um interpretador de regras, então não há custo de IA.
 
+## O que o app faz
+
+- **Registra por chat:** `peito: inc 24 5x10, cross 15 4x12`. Aceita apelidos em português (`supino maquina`, `gemeos`), plural e um erro de digitação quando só há uma opção; se houver dúvida, pergunta e não grava nada.
+- **Cargas diferentes por série:** `puxada 50x12 50x10 45x10`.
+- **Mostra o último treino** de cada exercício na tela "Treino do dia" e no Histórico.
+- **Desfazer / Excluir:** manda o registro para a lixeira do Notion.
+- **Não grava duas vezes** o mesmo texto reenviado (pergunta antes).
+- **Sem internet:** guarda o registro no aparelho e envia quando a conexão volta.
+
+Formato completo das palavras-chave: [docs/README.md](docs/README.md).
+
 ## Como funciona
 
 ```
@@ -31,4 +42,8 @@ iPhone (PWA)  ──►  /api (funções na Vercel)  ──►  Notion
 2. **Ligar ao Notion e publicar:** siga [docs/DEPLOY.md](docs/DEPLOY.md).
 3. **Instalar no iPhone:** abra o endereço no Safari → Compartilhar → Adicionar à Tela de Início.
 
-Testes do interpretador: `node --test`.
+Testes (interpretador, datas, regras do treino do dia e rotas da API no modo local): `node --test`.
+
+## Fluxo de trabalho
+
+`main` é o que está em produção na Vercel: cada mudança entra por **Pull Request** (branch → PR → merge), e a Vercel gera um endereço de teste para cada PR antes de publicar.

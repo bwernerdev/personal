@@ -5,7 +5,7 @@ Dados usados **só no modo de teste local** (`node server.js` sem `NOTION_TOKEN`
 | Arquivo | O que é |
 |---|---|
 | `rotina.json` | Cópia da rotina do personal (40 exercícios, 6 treinos). Mesmo formato do banco **Rotina** no Notion |
-| `treinos.local.json` | Criado sozinho quando você registra treinos no modo de teste. Está no `.gitignore`; pode apagar à vontade |
+| `treinos.local.json` | Criado sozinho quando você registra treinos no modo de teste. Está no `.gitignore`; pode apagar à vontade. A variável `TREINOS_LOCAL` (caminho de um arquivo) troca o local; os testes automáticos usam isso para não mexer neste |
 
 ## Formato de cada exercício em `rotina.json`
 
