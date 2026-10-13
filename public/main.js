@@ -642,3 +642,9 @@ $('#titulo').addEventListener('click', async () => {
 
 boasVindas();
 enviarFila();
+
+// iPhone (app instalado): a janela chega 47px menor que a tela (altura da barra de status) e sobra
+// uma faixa vazia embaixo. Se isso acontecer, o corpo usa a altura real da tela.
+if (navigator.standalone === true && innerHeight < screen.height) {
+  document.documentElement.style.setProperty('--altura', `${screen.height}px`);
+}
