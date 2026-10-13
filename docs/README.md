@@ -80,3 +80,9 @@ costas: puxada 50x12 50x10 45x10
 - O treino marcado com ★ é o **próximo do ciclo**, depois do último treino registrado.
 - Cada exercício mostra o que o personal pediu e **o último treino daquele exercício no mesmo treino** (se nunca fez nesse treino, mostra o de outro treino, avisando). Com cargas diferentes, aparecem todas: `50 kg · 2×12 + 45 kg · 1×10`.
 - O app lê os 300 registros mais recentes do Notion; exercício que não aparece neles é buscado direto, então registros antigos não somem.
+
+## Tela "Histórico"
+
+- **Filtro por tipo:** fileira de botões com **Todos** e os grupos musculares da Rotina (Peito, Costas, Pernas, Ombros, Braços, Core…, na coluna *Grupo muscular*; grupo novo no Notion aparece sozinho no fim). Escolhendo um tipo, o seletor mostra só os exercícios dele e a tela lista esses exercícios para tocar. O último tipo escolhido fica lembrado no aparelho.
+- Tocar em **Ver histórico** num cartão do "Treino do dia" abre o exercício; se o tipo escolhido escondia esse exercício, o filtro volta para **Todos**.
+- Os dados vêm de `/api/dia` (`grupos` e `grupoDoExercicio`, montados por `gruposDaRotina` em `lib/treino-do-dia.js`).

@@ -336,6 +336,12 @@ async function carregarDia(treino) {
   }
 }
 
+// Rola a fileira de botões para o escolhido ficar no meio (senão ele pode ficar cortado na borda).
+function centralizarAtivo(fileira) {
+  const ativo = fileira.querySelector('.ativa');
+  if (ativo) fileira.scrollLeft = ativo.offsetLeft - (fileira.clientWidth - ativo.offsetWidth) / 2;
+}
+
 function renderDia() {
   const d = estado.dia;
   $('#chips').replaceChildren(
@@ -343,10 +349,7 @@ function renderDia() {
       el('button', { class: t === d.selecionado ? 'ativa' : '', onclick: () => carregarDia(t) }, t === d.sugerido ? `${t} ★` : t),
     ),
   );
-  // Deixa o treino escolhido visível no meio dos chips (os últimos ficam fora da tela no celular).
-  const chips = $('#chips');
-  const ativo = chips.querySelector('.ativa');
-  if (ativo) chips.scrollLeft = ativo.offsetLeft - (chips.clientWidth - ativo.offsetWidth) / 2;
+  centralizarAtivo($('#chips')); // os últimos treinos ficam fora da tela no celular
   $('#aba-dia').scrollTop = 0;
   $('#lista-dia').replaceChildren(
     ...d.exercicios.map((ex) =>
@@ -366,8 +369,75 @@ function renderDia() {
 
 // ---------- histórico ----------
 
-async function prepararHistorico() {
+// Filtro por tipo (grupo muscular): "Todos" ou um grupo. O último escolhido fica lembrado no aparelho.
+estado.grupo = guardado.ler('grupoHistorico') || '';
+
+const exerciciosDoGrupo = () => {
+  const d = estado.dia;
+  const grupoDe = d.grupoDoExercicio || {};
+  return d.catalogo.filter((n) => !estado.grupo || grupoDe[n] === estado.grupo);
+};
+
+function renderFiltroHistorico() {
+  const d = estado.dia;
+  const grupos = d.grupos || [];
+  if (estado.grupo && !grupos.includes(estado.grupo)) estado.grupo = '';
+
+  $('#filtro-grupos').replaceChildren(
+    ...['', ...grupos].map((g) =>
+      el(
+        'button',
+        { type: 'button', class: g === estado.grupo ? 'ativa' : '', 'aria-pressed': String(g === estado.grupo), onclick: () => escolherGrupo(g) },
+        g || 'Todos',
+      ),
+    ),
+  );
+  $('#filtro-grupos').hidden = grupos.length === 0;
+  centralizarAtivo($('#filtro-grupos'));
+
   const seletor = $('#seletor-exercicio');
+  const anterior = seletor.value;
+  const nomes = exerciciosDoGrupo();
+  seletor.replaceChildren(
+    el('option', { value: '' }, estado.grupo ? `Exercícios de ${estado.grupo.toLowerCase()} (${nomes.length})` : 'Escolha um exercício'),
+    ...nomes.map((n) => el('option', { value: n }, n)),
+  );
+  seletor.value = nomes.includes(anterior) ? anterior : '';
+  if (!seletor.value) carregarHistorico(''); // sem exercício escolhido: mostra os do tipo (ou nada)
+}
+
+function escolherGrupo(grupo) {
+  estado.grupo = grupo;
+  guardado.gravar('grupoHistorico', grupo);
+  renderFiltroHistorico();
+}
+
+// Com um tipo escolhido e nenhum exercício, lista os exercícios daquele tipo para tocar.
+function mostrarExerciciosDoGrupo() {
+  const lista = $('#lista-historico');
+  if (!estado.grupo) return lista.replaceChildren();
+  const nomes = exerciciosDoGrupo();
+  lista.replaceChildren(
+    ...(nomes.length
+      ? nomes.map((n) =>
+          el(
+            'button',
+            {
+              type: 'button',
+              class: 'cartao item-exercicio',
+              onclick: () => {
+                $('#seletor-exercicio').value = n;
+                carregarHistorico(n);
+              },
+            },
+            n,
+          ),
+        )
+      : [el('div', { class: 'vazio-geral' }, 'Nenhum exercício deste tipo.')]),
+  );
+}
+
+async function prepararHistorico() {
   if (!estado.dia) {
     try {
       estado.dia = await chamar('/api/dia');
@@ -377,17 +447,12 @@ async function prepararHistorico() {
       return;
     }
   }
-  if (seletor.options.length <= 1) {
-    seletor.replaceChildren(
-      el('option', { value: '' }, 'Escolha um exercício'),
-      ...estado.dia.catalogo.map((n) => el('option', { value: n }, n)),
-    );
-  }
+  renderFiltroHistorico();
 }
 
 async function carregarHistorico(exercicio) {
   const lista = $('#lista-historico');
-  if (!exercicio) return lista.replaceChildren();
+  if (!exercicio) return mostrarExerciciosDoGrupo();
   lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Carregando…'));
   try {
     const { registros } = await chamar(`/api/historico?exercicio=${encodeURIComponent(exercicio)}`);
@@ -423,6 +488,9 @@ ${exercicio}: ${resumo(r)} (${data(r.data)})`)) return;
 async function irParaHistorico(exercicio) {
   abrirAba('historico');
   await prepararHistorico();
+  // Se o tipo escolhido esconde este exercício, volta para "Todos".
+  const grupoDele = (estado.dia.grupoDoExercicio || {})[exercicio];
+  if (estado.grupo && grupoDele !== estado.grupo) escolherGrupo('');
   $('#seletor-exercicio').value = exercicio;
   carregarHistorico(exercicio);
 }
