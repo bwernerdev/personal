@@ -13,7 +13,7 @@ O app que abre no celular. É servido como está (sem build, sem framework).
 
 | Arquivo | Papel |
 |---|---|
-| `index.html` | Estrutura: 3 abas (Chat, Treino do dia, Histórico) e a janela do código de acesso |
+| `index.html` | Estrutura: 3 abas (Chat, Treino do dia, Histórico), o aviso de nova versão e a janela do código de acesso |
 | `main.js` | Lógica das telas e chamadas à API |
 | `styles.css` | Visual (tema escuro) |
 | `sw.js` | Service worker: abre o app sem internet e guarda a última resposta de `/api/dia` e `/api/historico` |
@@ -22,7 +22,8 @@ O app que abre no celular. É servido como está (sem build, sem framework).
 
 ## Pontos de atenção
 
-- **Atualizou um arquivo do app?** Troque `VERSAO` em `sw.js` (`personal-v5` → `personal-v6`) para o celular baixar a versão nova.
+- **Aviso "Nova versão disponível" + botão Atualizar:** aparece sozinho, abaixo do título, quando o celular baixa uma versão nova (o service worker novo assume e dispara `controllerchange`; `main.js` mostra o aviso). Tocar em **Atualizar** recarrega o app; registros na fila sem internet não se perdem (ficam no `localStorage`), mas um texto digitado e não enviado sim. O app confere se há versão nova ao voltar para a tela, ao recuperar a internet e a cada 30 minutos. Na primeira instalação não aparece (não é atualização). **Só funciona se `VERSAO` mudar:** o navegador só percebe versão nova quando o `sw.js` muda.
+- **Atualizou um arquivo do app?** Troque `VERSAO` em `sw.js` (`personal-v6` → `personal-v7`) para o celular baixar a versão nova.
 - Registrar treino **exige internet** para gravar no Notion. Sem sinal, o texto fica numa fila no aparelho (`localStorage`, chave `fila`, com a data de quando foi digitado) e é enviado quando a conexão volta; o aviso no topo mostra "N na fila". Ver treino e histórico funciona offline com o que foi visto da última vez.
 - **Desfazer** (cartão de registrado) e **Excluir** (Histórico) chamam `/api/apagar`; no Notion vão para a lixeira.
 - No iPhone o app só instala em **Safari**: Compartilhar → Adicionar à Tela de Início.

@@ -51,7 +51,7 @@ Esperado: `{"modo":"notion","rotina":"40 exercícios","treinos":"0 registros"}`.
 
 ## Atualizar depois
 
-Mexeu no código? `npx vercel --prod` de novo. Se mudou algo em `public/`, troque `VERSAO` em `public/sw.js` para o celular pegar a versão nova.
+Mexeu no código? Abra um Pull Request e mescle (a Vercel publica a `main`). Se mudou algo em `public/`, troque `VERSAO` em `public/sw.js`: sem isso o celular não percebe a versão nova. Com a troca, o app mostra "Nova versão disponível" com o botão **Atualizar**.
 
 ## Problemas comuns
 
