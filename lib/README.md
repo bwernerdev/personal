@@ -23,6 +23,7 @@ Regras do projeto. É aqui que mora a lógica; `api/` e `public/` só chamam e m
 ## Como adicionar algo
 
 - **Novo atalho de treino:** `ALIAS` em `parser.js` (+ teste).
+- **Novo apelido de exercício:** `SINONIMOS` em `parser.js` (chave = nome na rotina). Não crie apelido que comece com uma palavra que já identifica outro exercício sozinha (ex.: `puxada ...`), senão essa palavra passa a perguntar. Rode `node --test`.
 - **Testes:** `parser.test.js`, `datas.test.js`, `treino-do-dia.test.js` (`node --test`). `notion.js`, `store.js` e `http.js` fazem rede/disco e não têm teste automático: confira com `/api/saude` e o modo de teste local.
 - **Nova coluna do Notion:** `notion.js` (ler e gravar), `parser.js` se vier do chat, e `docs/README.md`.
 - **Nova regra de leitura:** `treino-do-dia.js`, com função pura.
