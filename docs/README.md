@@ -21,11 +21,11 @@ costas: puxada 50x12 50x10 45x10
 
 | Parte | Como escrever |
 |---|---|
-| **Treino** (antes dos `:`) | `peito`, `perna1`, `costas`, `ombro`, `perna2`, `braço`. Também vale o nome completo (`Peito/Tríceps`). `perna` sozinho pergunta qual |
+| **Treino** (antes dos `:`) | `peito`, `perna1`, `costas`, `ombro`, `perna2`, `braço` (pode vir como `treino de peito`). Também vale o nome completo (`Peito/Tríceps`). `perna` sozinho pergunta qual |
 | **Data** (antes dos `:`) | `hoje` (padrão), `ontem`, `anteontem`, `seg`…`sab`, `dom`, `05/10`, `05/10/2026`. Dia da semana = o mais recente (hoje, se for hoje) |
-| **Exercício** | Começo de cada palavra: `inc` = Supino **inc**linado halter, `cross`, `ext`, `agacha`, `leg`, `rosca w`. Sem números no nome |
-| **Carga** | `24`, `24kg`, `22,5` |
-| **Séries × reps** | `5x10`, `5 x 10`. Em tempo: `4x60s` (os segundos vão para Observações) |
+| **Exercício** | Começo de cada palavra, em qualquer ordem: `inc` = Supino **inc**linado halter, `cross`, `ext`, `agacha`, `leg`, `rosca w`. Também vale um apelido em português: `supino maquina`, `cruzamento`, `extensao de pernas`, `press de pernas`, `gemeos`, `lateral`, `frances`… (lista em `SINONIMOS`, `lib/parser.js`). Aceita plural e um erro de digitação (`agachamneto`, `extenssora`) quando só há uma opção. Sem números no nome |
+| **Carga** | `24`, `24kg`, `24 quilos`, `22,5` |
+| **Séries × reps** | `5x10`, `5 x 10`, `5 séries de 10 repetições`. Em tempo: `4x60s` (os segundos vão para Observações) |
 | **Cargas diferentes** | Dois ou mais pares *carga x reps*, um por série: `puxada 50x12 50x10 45x10`. Séries seguidas iguais se juntam (`50x12 50x12` = 2 séries de 12 com 50). Não misture com carga solta nem com tempo (o app pergunta) |
 | **Vários exercícios** | Separe por vírgula, `;` ou linha nova. Linhas sem `:` herdam o treino e a data da linha de cima |
 
