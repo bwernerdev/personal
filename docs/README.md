@@ -53,6 +53,7 @@ supino inclinado: 24 5x10
 | **Número solto** | `supino inclinado, 24 quilos, 5x10` junta os números ao exercício (só se ele ainda não os tem) |
 | **Data e treino no meio da frase** | `hoje`, `ontem`, `segunda feira`, `dia 10`, `peito supino 24 5x10`, `hoje foi peito, ...` |
 | **Exercício antes dos dois-pontos** | `supino inclinado: 24 5x10` |
+| **Palavras fora de ordem** | `24 quilos supino inclinado 5x10`, `5x10 com 24 no supino inclinado`, `inclinado supino halter`, `supino inclinado 24 5x10 peito` (treino no fim ou no meio), `24 quilos, supino inclinado, 5x10` (números antes do nome), `24kg 5x10: supino inclinado` |
 | **Só um dos dois** | `3 séries` ou `10 repetições`: pergunta o que falta |
 | **Palavra que não existe na rotina** | `supino inclinado com halteres leves 24 5x10`: entende o exercício, **pergunta "é esse?"** (não chuta) |
 
