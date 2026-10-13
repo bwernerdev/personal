@@ -3,7 +3,7 @@ import { interpretar } from '../lib/parser.js';
 import { hojeSP, hojeInformado } from '../lib/datas.js';
 import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase } from '../lib/store.js';
 import { jaRegistrado } from '../lib/treino-do-dia.js';
-import { habilitado as iaDisponivel, sugerir } from '../lib/claude.js';
+import { habilitado as iaDisponivel, sugerir } from '../lib/ia.js';
 
 // Guarda a frase que as regras não resolveram (para ensiná-las depois: scripts/frases.js). Nunca atrapalha
 // o chat: erro ou demora de mais (4 s) só vão para o log.
@@ -20,8 +20,8 @@ async function anotarFraseNova(dados) {
 // `hoje` (AAAA-MM-DD) vem do celular quando o registro ficou guardado sem internet: "ontem" e "seg"
 // valem a partir do dia em que foi digitado, não do dia em que chegou aqui.
 // Registro idêntico a um que já existe não é gravado de novo, a menos que venha `forcar`.
-// Se as regras não entendem o texto e há ANTHROPIC_API_KEY, o Claude propõe uma reescrita
-// (status "sugestao"): ela NUNCA é gravada direto; o app mostra e o usuário confirma (lib/claude.js).
+// Se as regras não entendem o texto e há uma chave de IA (GEMINI_API_KEY ou ANTHROPIC_API_KEY), a IA propõe uma reescrita
+// (status "sugestao"): ela NUNCA é gravada direto; o app mostra e o usuário confirma (lib/ia.js).
 export default rota('POST', async (req) => {
   const { texto, usarRotina = false, forcar = false, hoje } = req.body || {};
   if (!texto || !String(texto).trim()) return { status: 'vazio' };
@@ -31,7 +31,7 @@ export default rota('POST', async (req) => {
   const r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina) });
 
   if (!r.pronto) {
-    // Pergunta de falta de carga/séries e dúvida entre exercícios são das regras; o Claude só ajuda
+    // Pergunta de falta de carga/séries e dúvida entre exercícios são das regras; a IA só ajuda
     // quando o texto não foi entendido (erro) ou os números estão confusos.
     const naoEntendeu = r.erros.length > 0 || r.pendentes.some((p) => p.tipo === 'confuso');
     const confirmou = r.pendentes.find((p) => p.tipo === 'confirmar_exercicio');
@@ -39,12 +39,12 @@ export default rota('POST', async (req) => {
 
     // Resposta que o usuário vai ver; o que sobrar vai para "Frases novas" antes de responder.
     let resposta = { status: 'precisa_resposta', pendentes: r.pendentes, erros: r.erros, entendidos: r.registros.length };
-    let resultado = confirmou && !naoEntendeu ? 'Pediu confirmação' : 'Sem ajuda do Claude';
+    let resultado = confirmou && !naoEntendeu ? 'Pediu confirmação' : 'Sem ajuda da IA';
     let sugestao = null;
 
     if (naoEntendeu && iaDisponivel()) {
       const ajuda = await sugerir({ texto, rotina, hoje: dia });
-      resultado = 'Claude não entendeu';
+      resultado = 'IA não entendeu';
       if (ajuda?.tipo === 'nao_entendi') {
         resposta = { ...resposta, ajuda: ajuda.mensagem };
       } else if (ajuda?.tipo === 'texto') {
@@ -52,7 +52,7 @@ export default rota('POST', async (req) => {
         // Serve reescrita sem erro que já tem registros OU só perguntas das regras (ex.: falta a carga).
         if (novo.erros.length === 0 && (novo.registros.length > 0 || novo.pendentes.length > 0)) {
           resposta = { status: 'sugestao', origem: 'ia', hoje: dia, texto_sugerido: ajuda.texto, pronto: novo.pronto, registros: novo.registros, pendentes: novo.pendentes };
-          resultado = 'Claude sugeriu';
+          resultado = 'IA sugeriu';
           sugestao = ajuda.texto;
         }
       }

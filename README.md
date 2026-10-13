@@ -2,13 +2,13 @@
 
 App de treino para o celular: você escreve o que fez por **palavras-chave** (`peito: inc 24 5x10`), ele registra no **Notion** e mostra, na hora de treinar, **o que você fez da última vez** em cada exercício.
 
-É um site que vira app no iPhone (**Compartilhar → Adicionar à Tela de Início**). O chat é um interpretador de regras (grátis, funciona offline). **Opcionalmente**, com uma chave da API do Claude no servidor, o Claude ajuda só quando as regras não entendem a frase — e nunca grava sozinho (ver abaixo).
+É um site que vira app no iPhone (**Compartilhar → Adicionar à Tela de Início**). O chat é um interpretador de regras (grátis, funciona offline). **Opcionalmente**, com uma chave de IA no servidor (Gemini, que tem plano grátis, ou Claude), uma IA ajuda só quando as regras não entendem a frase — e nunca grava sozinha (ver abaixo).
 
 ## O que o app faz
 
 - **Registra por chat:** `peito: inc 24 5x10, cross 15 4x12`. Aceita apelidos em português (`supino maquina`, `gemeos`), plural e um erro de digitação quando só há uma opção; se houver dúvida, pergunta e não grava nada.
 - **Cargas diferentes por série:** `puxada 50x12 50x10 45x10`.
-- **Ajuda do Claude (opcional):** frases livres como "hoje fiz supino inclinado com 24 quilos, cinco séries de dez". O Claude reescreve no formato do app, o app mostra "Entendi assim" e você confirma. Sem `ANTHROPIC_API_KEY` essa parte fica desligada.
+- **Ajuda de IA (opcional):** frases livres que as regras não entendem. A IA reescreve no formato do app, o app mostra "Entendi assim" e você confirma. Sem chave (`GEMINI_API_KEY` ou `ANTHROPIC_API_KEY`) essa parte fica desligada, e as regras já resolvem quase tudo sozinhas.
 - **Mostra o último treino** de cada exercício na tela "Treino do dia" e no Histórico.
 - **Desfazer / Excluir:** manda o registro para a lixeira do Notion.
 - **Não grava duas vezes** o mesmo texto reenviado (pergunta antes).
