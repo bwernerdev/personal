@@ -33,6 +33,16 @@ Publique em produção:
 npx vercel --prod
 ```
 
+### (Opcional) Ajuda do Claude no chat
+
+Se quiser que o chat entenda frases livres, crie uma chave em https://console.anthropic.com/ e cadastre:
+
+```
+npx vercel env add ANTHROPIC_API_KEY
+```
+
+Marque Production e publique de novo (mescle um PR ou rode `npx vercel --prod`). Sem essa variável o chat usa só as regras. Custo, privacidade e como funciona: [README.md](README.md#ajuda-do-claude-no-chat-opcional). **A chave é uma senha: nunca no código, no chat nem no git.**
+
 ## 3. Conferir a ligação com o Notion
 
 O endereço de produção aparece no final do comando. Teste (troque pelo seu endereço e pelo seu código):

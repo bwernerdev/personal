@@ -80,3 +80,30 @@ costas: puxada 50x12 50x10 45x10
 - O treino marcado com ★ é o **próximo do ciclo**, depois do último treino registrado.
 - Cada exercício mostra o que o personal pediu e **o último treino daquele exercício no mesmo treino** (se nunca fez nesse treino, mostra o de outro treino, avisando). Com cargas diferentes, aparecem todas: `50 kg · 2×12 + 45 kg · 1×10`.
 - O app lê os 300 registros mais recentes do Notion; exercício que não aparece neles é buscado direto, então registros antigos não somem.
+
+## Ajuda do Claude no chat (opcional)
+
+O chat é um interpretador de regras. **Se, e só se**, o servidor tiver `ANTHROPIC_API_KEY`, o Claude entra como ajudante quando as regras **não entendem** o texto (exercício não achado, treino desconhecido, números confusos). Exemplos que ele resolve:
+
+```
+hoje fiz supino inclinado com 24 quilos, cinco séries de dez, e o crossover com 15, quatro de doze
+segunda foi costas, puxada alta 4x12
+```
+
+### Como funciona (e por que não inventa dado)
+
+1. As regras tentam primeiro. Se entendem, o Claude **nem é chamado** (sem custo). Perguntas de carga/séries faltando e dúvida entre exercícios continuam sendo das regras.
+2. Se não entendem, o Claude recebe a frase, a lista de exercícios da rotina e a data de hoje, e devolve **só uma reescrita** no formato de palavras-chave (saída estruturada em JSON).
+3. O servidor valida a reescrita: **todo número dela precisa existir na mensagem original** (em dígitos ou por extenso, "vinte e quatro"); senão é descartada. Depois ela passa de novo pelo interpretador de regras (exercício da rotina, treino, data).
+4. O app mostra **"Entendi assim (ajuda da IA)"** com os registros e a data. **Nada foi gravado.** Você toca em **Registrar assim** (reenvia a reescrita pelo caminho normal de regras, que grava) ou em **Editar**.
+5. Se faltar informação (ex.: a carga), o app pergunta, como sempre. A IA **nunca** completa dado.
+
+Qualquer falha (sem internet, erro da API, limite de uso, resposta recusada) volta ao comportamento só com regras.
+
+### Configuração, custo e privacidade
+
+- Variáveis no servidor (nunca no front-end nem no git): `ANTHROPIC_API_KEY` (liga a ajuda), `ANTHROPIC_MODEL` (padrão `claude-opus-5-5`; `claude-haiku-5-5` custa dezenas de vezes menos), `LLM_LIMITE_POR_HORA` (padrão 30 por instância da Vercel). Passo a passo em [DEPLOY.md](DEPLOY.md).
+- **Custo:** uma ajuda envia ~1,5 mil tokens (a lista de exercícios mais a frase) e recebe poucas centenas. Com o padrão (Opus 5.5, US$ 4 / US$ 20 por milhão de tokens) fica na casa de **1 centavo de dólar por uso**; com Haiku 5.5, uma fração disso. Só frases que as regras não entendem geram custo.
+- **Privacidade:** nesses casos o texto da frase (máx. 600 caracteres), a lista de exercícios e a data vão para a Anthropic. Nada do Notion além disso é enviado.
+- Chamada HTTP direta (`fetch`), sem SDK: a regra do projeto é não ter dependências.
+- O código está em `lib/claude.js`; os testes simulam o Claude, nenhum chama a API de verdade.

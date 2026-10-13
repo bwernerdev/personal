@@ -8,8 +8,8 @@ App de treino por chat (PWA) ligado ao Notion. Leia o [README.md](README.md) ant
 - **Não use `app.js`, `server.js` ou `index.js` como nome de arquivo que vai para a Vercel** (ela os confunde com servidor; ver `public/README.md`). O `server.js` da raiz só pode existir porque o `.vercelignore` o deixa de fora da publicação.
 - Código e mensagens para o usuário em **português do Brasil**. Nomes de função e variável também em português, como no restante do projeto.
 - **Sem dependências** (nem `npm install`): só Node 22 e APIs padrão. Se uma dependência for realmente necessária, registre o motivo em `docs/README.md`.
-- **Sem API do Claude no app.** O chat é um interpretador de regras (`lib/parser.js`). Não adicione chamadas a LLM sem o usuário pedir.
-- **Segredos nunca no código nem no front-end.** `NOTION_TOKEN` e `APP_CODE` só existem como variáveis de ambiente no servidor. Nunca commite `.env`.
+- **O chat é um interpretador de regras (`lib/parser.js`); o Claude é só um ajudante opcional** (`lib/claude.js`, pedido pelo usuário em 2026-10): só roda quando as regras não entendem o texto e existe `ANTHROPIC_API_KEY`. Ele **nunca grava**: propõe uma reescrita no formato de palavras-chave, todo número dela precisa existir na mensagem original, ela passa de novo pelo parser e o usuário confirma antes de gravar. Sem a chave, o app funciona só com regras. Não amplie o uso de LLM (nem para perguntas, cálculo ou sugestão de carga) sem o usuário pedir.
+- **Segredos nunca no código nem no front-end.** `NOTION_TOKEN`, `APP_CODE` e `ANTHROPIC_API_KEY` só existem como variáveis de ambiente no servidor. Nunca commite `.env`.
 - **Nunca invente dados de treino.** Séries, repetições e carga só são gravadas se o usuário informou, ou confirmou explicitamente usar o valor do personal (`usarRotina`). Se algo faltar, o servidor pergunta e **não grava nada**.
 - O app **mostra o último treino**; não calcula nem sugere carga (decisão do usuário).
 

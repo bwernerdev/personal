@@ -189,6 +189,7 @@ function mostrarRegistrados(registros, titulo = 'Registrado ✓') {
 }
 
 function mostrarPerguntas(resp, textoOriginal) {
+  if (resp.ajuda) bolha('alerta', el('h3', {}, 'Ajuda da IA'), resp.ajuda);
   for (const e of resp.erros || []) bolha('erro', e);
   for (const p of resp.pendentes || []) {
     const acoes = el('div', { class: 'acoes' });
@@ -212,6 +213,32 @@ function mostrarPerguntas(resp, textoOriginal) {
   bolha('', el('div', { class: 'antes' }, 'Nada foi gravado ainda.'));
 }
 
+// A IA reescreveu a frase no formato do app. Nada foi gravado: o usuário confere e confirma.
+// "Registrar assim" reenvia o texto reescrito pelo caminho normal (as regras validam de novo).
+function mostrarSugestao(resp) {
+  const linhas = resp.registros.map((r) => el('div', { class: 'linha' }, `${r.exercicio}: ${resumo(r)} · ${data(r.data)}`));
+  const editar = () => {
+    $('#entrada').value = resp.texto_sugerido;
+    ajustarEntrada();
+    $('#entrada').focus();
+  };
+
+  if (resp.pronto) {
+    const acoes = el(
+      'div',
+      { class: 'acoes' },
+      el('button', { type: 'button', onclick: () => enviar(resp.texto_sugerido, false, 'Registrar assim', { hoje: resp.hoje }) }, 'Registrar assim'),
+      el('button', { type: 'button', onclick: editar }, 'Editar'),
+    );
+    bolha('alerta', el('h3', {}, 'Entendi assim (ajuda da IA)'), ...linhas, el('div', { class: 'antes' }, 'Confira antes de registrar: nada foi gravado ainda.'), acoes);
+    return;
+  }
+  // Entendeu parte, mas falta informação (ex.: a carga): mostra o que entendeu e pergunta, sem gravar.
+  bolha('alerta', el('h3', {}, 'Entendi assim (ajuda da IA)'), ...linhas, el('div', { class: 'antes' }, resp.texto_sugerido));
+  editar();
+  mostrarPerguntas({ pendentes: resp.pendentes, erros: [] }, resp.texto_sugerido);
+}
+
 function mostrarDuplicado(resp, texto, usarRotina) {
   const acoes = el(
     'div',
@@ -232,6 +259,7 @@ function tratarResposta(resp, texto, usarRotina, titulo) {
     return true;
   }
   if (resp.status === 'precisa_resposta') mostrarPerguntas(resp, texto);
+  else if (resp.status === 'sugestao') mostrarSugestao(resp);
   else if (resp.status === 'duplicado') mostrarDuplicado(resp, texto, usarRotina);
   else if (resp.status === 'erro_parcial') {
     if (resp.salvos.length) mostrarRegistrados(resp.salvos, titulo);
@@ -246,8 +274,12 @@ async function enviar(texto, usarRotina = false, rotuloUsuario = null, { forcar 
   const botao = $('#enviar');
   botao.disabled = true;
   bolha('eu', rotuloUsuario || texto);
+  let pensando = null;
+  const espera = setTimeout(() => (pensando = bolha('', el('div', { class: 'antes' }, 'Pensando…'))), 1500);
   try {
     const resp = await chamar('/api/chat', { method: 'POST', body: JSON.stringify({ texto, usarRotina, forcar, hoje }) });
+    clearTimeout(espera);
+    pensando?.remove();
     if (tratarResposta(resp, texto, usarRotina)) {
       $('#entrada').value = '';
       ajustarEntrada();
@@ -264,6 +296,8 @@ async function enviar(texto, usarRotina = false, rotuloUsuario = null, { forcar 
       bolha('erro', e.message);
     }
   } finally {
+    clearTimeout(espera);
+    pensando?.remove();
     botao.disabled = false;
   }
 }
