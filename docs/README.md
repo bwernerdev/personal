@@ -123,7 +123,7 @@ O chat é um interpretador de regras. **Se, e só se**, o servidor tiver uma cha
 
 | Provedor | Variável | Custo | Observação |
 |---|---|---|---|
-| **Google Gemini** (padrão) | `GEMINI_API_KEY` | **Grátis**, sem cartão (limite de uso por dia) | Chave em https://aistudio.google.com/apikey . Modelos `gemini-3.8-flash`, depois `gemini-3.5-flash-lite` e `gemini-flash-latest`: se um não existe (404) ou esgotou a cota (429), tenta o próximo; `GEMINI_MODEL` fixa um só. |
+| **Google Gemini** (padrão) | `GEMINI_API_KEY` | **Grátis**, sem cartão (limite de uso por dia) | Chave em https://aistudio.google.com/apikey . Modelos `gemini-3.5-flash-lite` (rápido), depois `gemini-3.8-flash` e `gemini-flash-latest`: se um não existe (404), esgotou a cota (429), está sobrecarregado (503) ou demora mais de 10 s, tenta o próximo; `GEMINI_MODEL` fixa um só. |
 | Anthropic (Claude) | `ANTHROPIC_API_KEY` | Pago (frações de centavo por uso) | Modelo `claude-haiku-5-5`, o mais barato; `ANTHROPIC_MODEL` troca. |
 
 Com as duas chaves cadastradas vale o Gemini; `LLM_PROVIDER=anthropic` força o outro. Sem nenhuma chave, a ajuda fica desligada e o app usa só as regras.
@@ -136,7 +136,7 @@ Com as duas chaves cadastradas vale o Gemini; `LLM_PROVIDER=anthropic` força o 
 4. O app mostra **"Entendi assim (ajuda da IA)"** com os registros e a data. **Nada foi gravado.** Você toca em **Registrar assim** (reenvia a reescrita pelo caminho normal de regras, que grava) ou em **Editar**.
 5. Se faltar informação (ex.: a carga), o app pergunta, como sempre. A IA **nunca** completa dado.
 
-Qualquer falha (sem internet, erro da API, limite de uso, resposta bloqueada ou recusada) volta ao comportamento só com regras.
+Qualquer falha (sem internet, erro da API, limite de uso, sobrecarga, tempo esgotado, resposta bloqueada ou recusada) volta ao comportamento só com regras. O tempo total é de 26 s (a função na Vercel tem 30 s). Nos logs da Vercel a falha aparece como `IA (Gemini): HTTP 503 ...` ou `IA (Gemini): tempo esgotado`.
 
 ### Configuração, limites e privacidade
 
@@ -144,7 +144,7 @@ Qualquer falha (sem internet, erro da API, limite de uso, resposta bloqueada ou 
 - **Limites do plano gratuito do Gemini:** o Google define e muda os limites (pedidos por minuto e por dia). O app só chama a IA em frase que as regras não entendem, algumas vezes por semana, então a cota grátis sobra. Se a cota acabar, o app apenas volta às regras. Confira os limites atuais no AI Studio.
 - **Privacidade:** nesses casos o texto da frase (máx. 600 caracteres), a lista de exercícios e a data vão para o provedor (Google ou Anthropic). **Planos gratuitos de alguns provedores podem usar o conteúdo enviado para melhorar os produtos deles**: leia os termos do Gemini antes de ativar. Nada do Notion além disso é enviado.
 - A chave vai no **cabeçalho** da requisição (`x-goog-api-key` / `x-api-key`), nunca na URL.
-- Chamada HTTP direta (`fetch`), sem SDK: a regra do projeto é não ter dependências. Se a API devolver 400 para algum parâmetro, o código tenta de novo sem ele (no Gemini: sem o esquema e, por fim, sem o modo JSON; no Claude: sem `fallbacks` e sem o formato estruturado).
+- Chamada HTTP direta (`fetch`), sem SDK: a regra do projeto é não ter dependências. Se a API devolver 400 para algum parâmetro, o código tenta de novo sem ele (no Gemini: sem o "pensamento baixo", sem o esquema e, por fim, sem o modo JSON; no Claude: sem `fallbacks` e sem o formato estruturado).
 - O código está em `lib/ia.js`; os testes simulam a API, nenhum chama a API de verdade.
 
 ## Frases novas: o app aprende com o que não entendeu
