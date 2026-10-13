@@ -29,6 +29,35 @@ costas: puxada 50x12 50x10 45x10
 | **Cargas diferentes** | Dois ou mais pares *carga x reps*, um por série: `puxada 50x12 50x10 45x10`. Séries seguidas iguais se juntam (`50x12 50x12` = 2 séries de 12 com 50). Não misture com carga solta nem com tempo (o app pergunta) |
 | **Vários exercícios** | Separe por vírgula, `;` ou linha nova. Linhas sem `:` herdam o treino e a data da linha de cima |
 
+### Linguagem do dia a dia (sem Claude)
+
+As regras entendem frases soltas, não só o formato com dois-pontos. Tudo isto funciona sozinho, de graça e offline:
+
+```
+hoje fiz supino inclinado com 24 quilos, 5 séries de 10, e depois o crossover com 15, quatro de doze
+ontem à noite fiz braço: rosca martelo 12 3x12
+fiz cinco séries de dez no supino inclinado com vinte e quatro
+segunda feira costas puxada alta 50 4x12
+dia 10 peito: inc 24 5x10
+supino inclinado, 24 quilos, 5x10
+supino inclinado - 24 - 5x10
+supino inclinado: 24 5x10
+```
+
+| O que entende | Exemplos |
+|---|---|
+| **Palavras de enfeite** (ignoradas) | `fiz`, `treinei`, `foi`, `com`, `carga`, `o`, `e depois`, `à noite`, `registrar`… |
+| **Números por extenso** | `cinco`, `vinte e quatro`, `vinte e dois e meio` (= 22,5), `perna dois` |
+| **Séries x reps ditas de outro jeito** | `5 séries de 10`, `10 repetições em 5 séries`, `4 vezes de 12`, `4 por 12`, `quatro de doze` |
+| **Várias coisas na mesma frase** | separadas por vírgula, `;`, " e ", " depois ", " - " ou ponto |
+| **Número solto** | `supino inclinado, 24 quilos, 5x10` junta os números ao exercício (só se ele ainda não os tem) |
+| **Data e treino no meio da frase** | `hoje`, `ontem`, `segunda feira`, `dia 10`, `peito supino 24 5x10`, `hoje foi peito, ...` |
+| **Exercício antes dos dois-pontos** | `supino inclinado: 24 5x10` |
+| **Só um dos dois** | `3 séries` ou `10 repetições`: pergunta o que falta |
+| **Palavra que não existe na rotina** | `supino inclinado com halteres leves 24 5x10`: entende o exercício, **pergunta "é esse?"** (não chuta) |
+
+Para o Claude sobram só frases que não dizem qual exercício foi (`fiz o mesmo treino de ontem`, `treinei bastante`) e números que não fecham (`5x10-12`, duas cargas). Medido com a tabela de frases (`lib/frases-naturais.js`): **antes, 32 de 45 frases do dia a dia iam para o Claude (71%); agora, 0 de 52**.
+
 ### Regras de segurança (não mudar sem combinar)
 
 1. **Só grava quando tudo foi entendido.** Se um item gerar pergunta, nada é gravado.
@@ -93,7 +122,7 @@ segunda foi costas, puxada alta 4x12
 ### Como funciona (e por que não inventa dado)
 
 1. As regras tentam primeiro. Se entendem, o Claude **nem é chamado** (sem custo). Perguntas de carga/séries faltando e dúvida entre exercícios continuam sendo das regras.
-2. Se não entendem, o Claude recebe a frase, a lista de exercícios da rotina e a data de hoje, e devolve **só uma reescrita** no formato de palavras-chave (saída estruturada em JSON).
+2. Se não entendem (hoje isso é raro: ver "Linguagem do dia a dia"), o Claude recebe a frase, a lista de exercícios da rotina e a data de hoje, e devolve **só uma reescrita** no formato de palavras-chave (saída estruturada em JSON).
 3. O servidor valida a reescrita: **todo número dela precisa existir na mensagem original** (em dígitos ou por extenso, "vinte e quatro"); senão é descartada. Depois ela passa de novo pelo interpretador de regras (exercício da rotina, treino, data).
 4. O app mostra **"Entendi assim (ajuda da IA)"** com os registros e a data. **Nada foi gravado.** Você toca em **Registrar assim** (reenvia a reescrita pelo caminho normal de regras, que grava) ou em **Editar**.
 5. Se faltar informação (ex.: a carga), o app pergunta, como sempre. A IA **nunca** completa dado.

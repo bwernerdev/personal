@@ -140,6 +140,7 @@ function boasVindas() {
     el('div', { class: 'linha' }, 'peito: inc 24 5x10, cross 15 4x12'),
     el('div', { class: 'linha' }, 'ontem perna1: ext 50 4x12, agacha 60 5x8'),
     el('div', { class: 'linha' }, 'costas: puxada 50x12 50x10 45x10'),
+    el('div', { class: 'linha' }, 'ou do seu jeito: hoje fiz supino inclinado com 24 quilos, 5 séries de 10'),
     el('div', { class: 'antes' }, 'Treino: peito, perna1, costas, ombro, perna2, braço. Data: hoje (padrão), ontem, seg…sab, 05/10.'),
   );
 }
