@@ -588,5 +588,57 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ---------- diagnóstico de tela ----------
+// Toque 5 vezes no título para ver as medidas reais do aparelho (versão do app, tamanho da área
+// útil, áreas seguras, modo instalado). Serve para investigar problemas de layout no iPhone; toque
+// no quadro para fechar.
+
+async function medidasDoAparelho() {
+  const retangulo = (seletor) => {
+    const r = document.querySelector(seletor)?.getBoundingClientRect();
+    return r ? `${Math.round(r.top)} → ${Math.round(r.bottom)}` : '—';
+  };
+  // As áreas seguras só se leem por CSS: mede-se o padding de uma caixa que usa env().
+  const caixa = document.createElement('div');
+  caixa.style.cssText = 'position:fixed;visibility:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';
+  document.body.append(caixa);
+  const e = getComputedStyle(caixa);
+  const seguras = `${e.paddingTop} / ${e.paddingRight} / ${e.paddingBottom} / ${e.paddingLeft}`;
+  caixa.remove();
+
+  let caches_ = '—';
+  try {
+    caches_ = (await caches.keys()).join(', ') || '(nenhum)';
+  } catch {
+    /* sem Cache API */
+  }
+  const vv = window.visualViewport;
+  const modo = ['standalone', 'fullscreen', 'minimal-ui', 'browser'].find((m) => matchMedia(`(display-mode: ${m})`).matches);
+  return [
+    `versão (cache): ${caches_}`,
+    `instalado (standalone): ${navigator.standalone === true ? 'sim' : 'não'} · display-mode: ${modo ?? '?'}`,
+    `janela: ${innerWidth} × ${innerHeight}`,
+    `visualViewport: ${vv ? `${Math.round(vv.width)} × ${Math.round(vv.height)} (topo ${Math.round(vv.offsetTop)})` : '—'}`,
+    `documento (clientHeight): ${document.documentElement.clientHeight}`,
+    `tela: ${screen.width} × ${screen.height} · outerHeight: ${outerHeight}`,
+    `áreas seguras (topo/dir/base/esq): ${seguras}`,
+    `corpo (topo → base): ${retangulo('body')}`,
+    `barra de baixo (topo → base): ${retangulo('nav')}`,
+    `aba ativa (topo → base): ${retangulo('.aba.ativa')}`,
+    `proporção: ${devicePixelRatio}`,
+  ].join('\n');
+}
+
+let toquesNoTitulo = 0;
+let zeraToques;
+$('#titulo').addEventListener('click', async () => {
+  clearTimeout(zeraToques);
+  zeraToques = setTimeout(() => (toquesNoTitulo = 0), 1500);
+  if (++toquesNoTitulo < 5) return;
+  toquesNoTitulo = 0;
+  const quadro = el('pre', { id: 'diagnostico', onclick: () => quadro.remove() }, await medidasDoAparelho());
+  document.body.append(quadro);
+});
+
 boasVindas();
 enviarFila();
