@@ -25,15 +25,19 @@ html {
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 html, body {
-  height: 100%;
-  height: 100dvh; /* acompanha a barra do Safari; o 100% acima é o reserva */
   margin: 0;
   background: var(--fundo);
   color: var(--texto);
   font: 16px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
+html { height: 100%; }
 
+/* O app ocupa a tela inteira presa às bordas (fixed + inset 0), em vez de depender de "100vh/100dvh":
+   no iPhone, com o app instalado, essa altura ficava menor que a tela e o rodapé terminava antes do
+   fim, deixando uma faixa vazia embaixo. */
 body {
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
   padding-top: env(safe-area-inset-top);
