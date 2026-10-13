@@ -29,7 +29,7 @@ costas: puxada 50x12 50x10 45x10
 | **Cargas diferentes** | Dois ou mais pares *carga x reps*, um por série: `puxada 50x12 50x10 45x10`. Séries seguidas iguais se juntam (`50x12 50x12` = 2 séries de 12 com 50). Não misture com carga solta nem com tempo (o app pergunta) |
 | **Vários exercícios** | Separe por vírgula, `;` ou linha nova. Linhas sem `:` herdam o treino e a data da linha de cima |
 
-### Linguagem do dia a dia (sem Claude)
+### Linguagem do dia a dia (sem IA)
 
 As regras entendem frases soltas, não só o formato com dois-pontos. Tudo isto funciona sozinho, de graça e offline:
 
@@ -57,7 +57,7 @@ supino inclinado: 24 5x10
 | **Só um dos dois** | `3 séries` ou `10 repetições`: pergunta o que falta |
 | **Palavra que não existe na rotina** | `supino inclinado com halteres leves 24 5x10`: entende o exercício, **pergunta "é esse?"** (não chuta) |
 
-Para o Claude sobram só frases que não dizem qual exercício foi (`fiz o mesmo treino de ontem`, `treinei bastante`) e números que não fecham (`5x10-12`, duas cargas). Medido com a tabela de frases (`lib/frases-naturais.js`): **antes, 32 de 45 frases do dia a dia iam para o Claude (71%); agora, 0 de 52**.
+Para a IA sobram só frases que não dizem qual exercício foi (`fiz o mesmo treino de ontem`, `treinei bastante`) e números que não fecham (`5x10-12`, duas cargas). Medido com a tabela de frases (`lib/frases-naturais.js`): **antes, 32 de 45 frases do dia a dia iam para a IA (71%); agora, 0 de 52**.
 
 ### Regras de segurança (não mudar sem combinar)
 
@@ -117,36 +117,39 @@ Para o Claude sobram só frases que não dizem qual exercício foi (`fiz o mesmo
 - Tocar em **Ver histórico** num cartão do "Treino do dia" abre o exercício; se o tipo escolhido escondia esse exercício, o filtro volta para **Todos**.
 - Os dados vêm de `/api/dia` (`grupos` e `grupoDoExercicio`, montados por `gruposDaRotina` em `lib/treino-do-dia.js`).
 
-## Ajuda do Claude no chat (opcional)
+## Ajuda de uma IA no chat (opcional, Gemini grátis)
 
-O chat é um interpretador de regras. **Se, e só se**, o servidor tiver `ANTHROPIC_API_KEY`, o Claude entra como ajudante quando as regras **não entendem** o texto (exercício não achado, treino desconhecido, números confusos). Exemplos que ele resolve:
+O chat é um interpretador de regras. **Se, e só se**, o servidor tiver uma chave de IA, ela entra como ajudante quando as regras **não entendem** o texto (exercício não achado, números que não fecham). Exemplo: `fiz o primeiro exercício da rotina, 24 quilos, 5 séries de 10` (sem dizer qual exercício).
 
-```
-hoje fiz supino inclinado com 24 quilos, cinco séries de dez, e o crossover com 15, quatro de doze
-segunda foi costas, puxada alta 4x12
-```
+| Provedor | Variável | Custo | Observação |
+|---|---|---|---|
+| **Google Gemini** (padrão) | `GEMINI_API_KEY` | **Grátis**, sem cartão (limite de uso por dia) | Chave em https://aistudio.google.com/apikey . Modelos `gemini-3.8-flash`, depois `gemini-3.5-flash-lite` e `gemini-flash-latest`: se um não existe (404) ou esgotou a cota (429), tenta o próximo; `GEMINI_MODEL` fixa um só. |
+| Anthropic (Claude) | `ANTHROPIC_API_KEY` | Pago (frações de centavo por uso) | Modelo `claude-haiku-5-5`, o mais barato; `ANTHROPIC_MODEL` troca. |
+
+Com as duas chaves cadastradas vale o Gemini; `LLM_PROVIDER=anthropic` força o outro. Sem nenhuma chave, a ajuda fica desligada e o app usa só as regras.
 
 ### Como funciona (e por que não inventa dado)
 
-1. As regras tentam primeiro. Se entendem, o Claude **nem é chamado** (sem custo). Perguntas de carga/séries faltando e dúvida entre exercícios continuam sendo das regras.
-2. Se não entendem (hoje isso é raro: ver "Linguagem do dia a dia"), o Claude recebe a frase, a lista de exercícios da rotina e a data de hoje, e devolve **só uma reescrita** no formato de palavras-chave (saída estruturada em JSON).
-3. O servidor valida a reescrita: **todo número dela precisa existir na mensagem original** (em dígitos ou por extenso, "vinte e quatro"); senão é descartada. Depois ela passa de novo pelo interpretador de regras (exercício da rotina, treino, data).
+1. As regras tentam primeiro. Se entendem, a IA **nem é chamada** (sem uso da cota). Perguntas de carga/séries faltando e dúvida entre exercícios continuam sendo das regras.
+2. Se não entendem (hoje isso é raro: ver "Linguagem do dia a dia"), a IA recebe a frase, a lista de exercícios da rotina e a data de hoje, e devolve **só uma reescrita** no formato de palavras-chave (JSON).
+3. O servidor valida a reescrita: **todo número dela precisa existir na mensagem original** (em dígitos ou por extenso, "vinte e quatro"); senão é descartada. Depois ela passa de novo pelo interpretador de regras (exercício da rotina, treino, data). Isso vale **igual para qualquer provedor**.
 4. O app mostra **"Entendi assim (ajuda da IA)"** com os registros e a data. **Nada foi gravado.** Você toca em **Registrar assim** (reenvia a reescrita pelo caminho normal de regras, que grava) ou em **Editar**.
 5. Se faltar informação (ex.: a carga), o app pergunta, como sempre. A IA **nunca** completa dado.
 
-Qualquer falha (sem internet, erro da API, limite de uso, resposta recusada) volta ao comportamento só com regras.
+Qualquer falha (sem internet, erro da API, limite de uso, resposta bloqueada ou recusada) volta ao comportamento só com regras.
 
-### Configuração, custo e privacidade
+### Configuração, limites e privacidade
 
-- Variáveis no servidor (nunca no front-end nem no git): `ANTHROPIC_API_KEY` (liga a ajuda), `ANTHROPIC_MODEL` (padrão `claude-haiku-5-5`, o mais barato; `claude-sonnet-5-5` e `claude-opus-5-5` entendem frases mais difíceis, mas custam bem mais), `LLM_LIMITE_POR_HORA` (padrão 30 por instância da Vercel). Passo a passo em [DEPLOY.md](DEPLOY.md).
-- **Custo:** uma ajuda envia ~1,5 mil tokens (a lista de exercícios mais a frase) e recebe poucas centenas. Com o padrão (Haiku 5.5, US$ 0,10 / US$ 0,50 por milhão de tokens) fica em torno de **US$ 0,0004 por uso** (4 centésimos de centavo: mil usos custam uns 40 centavos de dólar); com o Opus 5.5 (US$ 4 / US$ 20) seria cerca de 25 vezes isso. Só frases que as regras não entendem geram custo. Um modelo menor pode errar mais em frases difíceis, mas isso não aumenta o risco de dado inventado: a conferência de números e a sua confirmação valem para qualquer modelo.
-- **Privacidade:** nesses casos o texto da frase (máx. 600 caracteres), a lista de exercícios e a data vão para a Anthropic. Nada do Notion além disso é enviado.
-- Chamada HTTP direta (`fetch`), sem SDK: a regra do projeto é não ter dependências. O Haiku 5.5 não tem "fallback" de recusa no servidor, então o parâmetro só é enviado com Opus/Sonnet; se a API devolver 400 para algum parâmetro, o código tenta de novo sem ele (e por último sem o formato JSON estruturado).
-- O código está em `lib/claude.js`; os testes simulam o Claude, nenhum chama a API de verdade.
+- Variáveis no servidor (nunca no front-end nem no git): a chave do provedor, `GEMINI_MODEL`/`ANTHROPIC_MODEL` (opcional) e `LLM_LIMITE_POR_HORA` (padrão 30 por instância da Vercel, para não estourar a cota grátis). Passo a passo em [DEPLOY.md](DEPLOY.md).
+- **Limites do plano gratuito do Gemini:** o Google define e muda os limites (pedidos por minuto e por dia). O app só chama a IA em frase que as regras não entendem, algumas vezes por semana, então a cota grátis sobra. Se a cota acabar, o app apenas volta às regras. Confira os limites atuais no AI Studio.
+- **Privacidade:** nesses casos o texto da frase (máx. 600 caracteres), a lista de exercícios e a data vão para o provedor (Google ou Anthropic). **Planos gratuitos de alguns provedores podem usar o conteúdo enviado para melhorar os produtos deles**: leia os termos do Gemini antes de ativar. Nada do Notion além disso é enviado.
+- A chave vai no **cabeçalho** da requisição (`x-goog-api-key` / `x-api-key`), nunca na URL.
+- Chamada HTTP direta (`fetch`), sem SDK: a regra do projeto é não ter dependências. Se a API devolver 400 para algum parâmetro, o código tenta de novo sem ele (no Gemini: sem o esquema e, por fim, sem o modo JSON; no Claude: sem `fallbacks` e sem o formato estruturado).
+- O código está em `lib/ia.js`; os testes simulam a API, nenhum chama a API de verdade.
 
 ## Frases novas: o app aprende com o que não entendeu
 
-Toda frase que as regras **não resolvem** (erro, números confusos) e toda que pede confirmação por **palavra desconhecida** é guardada no banco **Frases novas** do Notion: a frase, o resultado (`Claude sugeriu`, `Claude não entendeu`, `Sem ajuda do Claude` ou `Pediu confirmação`), o motivo, a sugestão do Claude, **quantas vezes** apareceu e a última data. Frase que as regras resolvem, perguntam carga ou têm dúvida entre exercícios **não** é guardada.
+Toda frase que as regras **não resolvem** (erro, números confusos) e toda que pede confirmação por **palavra desconhecida** é guardada no banco **Frases novas** do Notion: a frase, o resultado (`IA sugeriu`, `IA não entendeu`, `Sem ajuda da IA` ou `Pediu confirmação`), o motivo, a sugestão da IA, **quantas vezes** apareceu e a última data. Frase que as regras resolvem, perguntam carga ou têm dúvida entre exercícios **não** é guardada.
 
 - Guardar nunca atrapalha o chat: erro ou demora de mais (4 s) só vão para o log da Vercel.
 - Só o texto da frase é guardado (máx. 300 caracteres), no **seu** Notion; nada vai para outro lugar.

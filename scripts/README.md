@@ -16,7 +16,7 @@ Utilitários de linha de comando. Não vão para a Vercel (não estão em `api/`
 
 ## `frases.js`: ensinando as regras com as frases que falharam
 
-O servidor guarda, no banco **Frases novas** do Notion, toda frase que as regras não entendem (e as que pedem confirmação por palavra desconhecida), com quantas vezes apareceu e o que o Claude sugeriu. Frase que as regras resolvem **não** é guardada.
+O servidor guarda, no banco **Frases novas** do Notion, toda frase que as regras não entendem (e as que pedem confirmação por palavra desconhecida), com quantas vezes apareceu e o que a IA sugeriu. Frase que as regras resolvem **não** é guardada.
 
 ```bash
 node scripts/frases.js listar              # pendentes, as mais repetidas primeiro

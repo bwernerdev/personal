@@ -37,15 +37,15 @@ npx vercel --prod
 
 O app guarda no Notion as frases que as regras do chat não entendem, no banco **Frases novas** (já criado ao lado dos outros dois). **Conecte a integração a ele**, como no passo 1.3: abra o banco **Frases novas** → menu `•••` → **Conexões** → adicione a mesma integração. Sem isso o app continua funcionando, só não guarda as frases (o `/api/saude` mostra `frases: erro`). Como usar: [scripts/README.md](../scripts/README.md).
 
-### (Opcional) Ajuda do Claude no chat
+### (Opcional) Ajuda de IA no chat, grátis com o Gemini
 
-Se quiser que o chat entenda frases livres, crie uma chave em https://console.anthropic.com/ e cadastre:
+Se quiser que o chat entenda frases que as regras não pegam, crie uma chave **grátis** (sem cartão) em https://aistudio.google.com/apikey e cadastre na Vercel:
 
 ```
-npx vercel env add ANTHROPIC_API_KEY
+npx vercel env add GEMINI_API_KEY
 ```
 
-Marque Production e publique de novo (mescle um PR ou rode `npx vercel --prod`). Sem essa variável o chat usa só as regras. Custo, privacidade e como funciona: [README.md](README.md#ajuda-do-claude-no-chat-opcional). **A chave é uma senha: nunca no código, no chat nem no git.**
+Marque Production e publique de novo (mescle um PR ou rode `npx vercel --prod`). Sem essa variável o chat usa só as regras. Limites, privacidade e como funciona: [README.md](README.md#ajuda-de-uma-ia-no-chat-opcional-gemini-grátis). Antes de ativar, leia os termos do plano gratuito do Google (o conteúdo enviado pode ser usado para melhorar produtos deles). **A chave é uma senha: nunca no código, no chat nem no git.** (Alternativa paga: `ANTHROPIC_API_KEY` do Claude.)
 
 ## 3. Conferir a ligação com o Notion
 
