@@ -107,7 +107,11 @@ let abaAtual = 'chat';
 function abrirAba(nome) {
   abaAtual = nome;
   document.querySelectorAll('.aba').forEach((a) => a.classList.toggle('ativa', a.id === `aba-${nome}`));
-  document.querySelectorAll('nav button').forEach((b) => b.classList.toggle('ativa', b.dataset.aba === nome));
+  document.querySelectorAll('nav button').forEach((b) => {
+    b.classList.toggle('ativa', b.dataset.aba === nome);
+    if (b.dataset.aba === nome) b.setAttribute('aria-current', 'page');
+    else b.removeAttribute('aria-current');
+  });
   $('#titulo').textContent = TITULOS[nome];
   if (nome === 'dia') carregarDia(estado.diaSelecionado);
   if (nome === 'historico') prepararHistorico();
@@ -321,6 +325,7 @@ $('#entrada').addEventListener('keydown', (e) => {
 
 async function carregarDia(treino) {
   const lista = $('#lista-dia');
+  if (!estado.dia) lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Carregando…'));
   try {
     const dados = await chamar(`/api/dia${treino ? `?treino=${encodeURIComponent(treino)}` : ''}`);
     estado.dia = dados;
@@ -338,6 +343,11 @@ function renderDia() {
       el('button', { class: t === d.selecionado ? 'ativa' : '', onclick: () => carregarDia(t) }, t === d.sugerido ? `${t} ★` : t),
     ),
   );
+  // Deixa o treino escolhido visível no meio dos chips (os últimos ficam fora da tela no celular).
+  const chips = $('#chips');
+  const ativo = chips.querySelector('.ativa');
+  if (ativo) chips.scrollLeft = ativo.offsetLeft - (chips.clientWidth - ativo.offsetWidth) / 2;
+  $('#aba-dia').scrollTop = 0;
   $('#lista-dia').replaceChildren(
     ...d.exercicios.map((ex) =>
       el(
@@ -378,6 +388,7 @@ async function prepararHistorico() {
 async function carregarHistorico(exercicio) {
   const lista = $('#lista-historico');
   if (!exercicio) return lista.replaceChildren();
+  lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Carregando…'));
   try {
     const { registros } = await chamar(`/api/historico?exercicio=${encodeURIComponent(exercicio)}`);
     lista.replaceChildren(
