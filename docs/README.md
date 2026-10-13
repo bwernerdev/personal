@@ -102,8 +102,8 @@ Qualquer falha (sem internet, erro da API, limite de uso, resposta recusada) vol
 
 ### Configuração, custo e privacidade
 
-- Variáveis no servidor (nunca no front-end nem no git): `ANTHROPIC_API_KEY` (liga a ajuda), `ANTHROPIC_MODEL` (padrão `claude-opus-5-5`; `claude-haiku-5-5` custa dezenas de vezes menos), `LLM_LIMITE_POR_HORA` (padrão 30 por instância da Vercel). Passo a passo em [DEPLOY.md](DEPLOY.md).
-- **Custo:** uma ajuda envia ~1,5 mil tokens (a lista de exercícios mais a frase) e recebe poucas centenas. Com o padrão (Opus 5.5, US$ 4 / US$ 20 por milhão de tokens) fica na casa de **1 centavo de dólar por uso**; com Haiku 5.5, uma fração disso. Só frases que as regras não entendem geram custo.
+- Variáveis no servidor (nunca no front-end nem no git): `ANTHROPIC_API_KEY` (liga a ajuda), `ANTHROPIC_MODEL` (padrão `claude-haiku-5-5`, o mais barato; `claude-sonnet-5-5` e `claude-opus-5-5` entendem frases mais difíceis, mas custam bem mais), `LLM_LIMITE_POR_HORA` (padrão 30 por instância da Vercel). Passo a passo em [DEPLOY.md](DEPLOY.md).
+- **Custo:** uma ajuda envia ~1,5 mil tokens (a lista de exercícios mais a frase) e recebe poucas centenas. Com o padrão (Haiku 5.5, US$ 0,10 / US$ 0,50 por milhão de tokens) fica em torno de **US$ 0,0004 por uso** (4 centésimos de centavo: mil usos custam uns 40 centavos de dólar); com o Opus 5.5 (US$ 4 / US$ 20) seria cerca de 25 vezes isso. Só frases que as regras não entendem geram custo. Um modelo menor pode errar mais em frases difíceis, mas isso não aumenta o risco de dado inventado: a conferência de números e a sua confirmação valem para qualquer modelo.
 - **Privacidade:** nesses casos o texto da frase (máx. 600 caracteres), a lista de exercícios e a data vão para a Anthropic. Nada do Notion além disso é enviado.
-- Chamada HTTP direta (`fetch`), sem SDK: a regra do projeto é não ter dependências.
+- Chamada HTTP direta (`fetch`), sem SDK: a regra do projeto é não ter dependências. O Haiku 5.5 não tem "fallback" de recusa no servidor, então o parâmetro só é enviado com Opus/Sonnet; se a API devolver 400 para algum parâmetro, o código tenta de novo sem ele (e por último sem o formato JSON estruturado).
 - O código está em `lib/claude.js`; os testes simulam o Claude, nenhum chama a API de verdade.
