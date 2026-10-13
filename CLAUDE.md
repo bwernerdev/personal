@@ -21,3 +21,17 @@ App de treino por chat (PWA) ligado ao Notion. Leia o [README.md](README.md) ant
 ## Notion
 
 Dois bancos (IDs em `lib/notion.js`): **Rotina** e **Treinos**. Se mudar colunas no Notion, atualize `lib/notion.js`, `docs/README.md` e `data/rotina.json`.
+
+## Mapa rápido (leia isto em vez de abrir todos os arquivos)
+
+- `lib/parser.js` — interpretador de regras (`interpretar`, `lerParte`, `juntarSoltos`, `acharExercicio`; exporta `ATALHO`, `SINONIMOS`). Mexeu aqui: `node --test`.
+- `lib/linguagem.js` — texto: números por extenso, `NxM`, `ENFEITES`, datas, `dividirItens`.
+- `lib/ia.js` — ajudante opcional (Gemini/Claude): só reescreve, valida números, nunca grava.
+- `lib/notion.js` / `lib/store.js` — Notion (IDs dos bancos) / camada que escolhe Notion ou arquivo local (`data/*.local.json`).
+- `lib/frases-naturais.js` — tabela de frases que as regras devem entender (+ `.test.js`).
+- `lib/treino-do-dia.js`, `lib/datas.js`, `lib/http.js` — treino do dia, datas, limite de requisições.
+- `api/chat.js` (fluxo principal), `api/dia.js`, `api/historico.js`, `api/apagar.js`, `api/saude.js` — endpoints.
+- `public/main.js` (telas), `public/styles.css`, `public/index.html`, `public/sw.js` (mude `VERSAO` a cada edição em `public/`).
+- `scripts/frases.js` — "inclua as frases novas": `listar | tabela | incluir`.
+- Fluxo de entrega: branch → commit → push → `gh pr create --body-file` → (usuário diz "mescle") `gh pr merge N --merge --delete-branch`.
+- Economia: use Grep/Read com `offset`/`limit` nos arquivos grandes; respostas curtas.
