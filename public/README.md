@@ -22,7 +22,7 @@ O app que abre no celular. É servido como está (sem build, sem framework).
 
 ## Pontos de atenção
 
-- **Atualizou um arquivo do app?** Troque `VERSAO` em `sw.js` (`personal-v2` → `personal-v3`) para o celular baixar a versão nova.
+- **Atualizou um arquivo do app?** Troque `VERSAO` em `sw.js` (`personal-v4` → `personal-v5`) para o celular baixar a versão nova.
 - Registrar treino **exige internet** para gravar no Notion. Sem sinal, o texto fica numa fila no aparelho (`localStorage`, chave `fila`, com a data de quando foi digitado) e é enviado quando a conexão volta; o aviso no topo mostra "N na fila". Ver treino e histórico funciona offline com o que foi visto da última vez.
 - **Desfazer** (cartão de registrado) e **Excluir** (Histórico) chamam `/api/apagar`; no Notion vão para a lixeira.
 - No iPhone o app só instala em **Safari**: Compartilhar → Adicionar à Tela de Início.
