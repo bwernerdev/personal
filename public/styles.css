@@ -45,7 +45,7 @@ body {
 button { touch-action: manipulation; font-family: inherit; }
 button:active:not(:disabled) { opacity: .7; }
 @media (hover: hover) {
-  .acoes button:hover, #chips button:not(.ativa):hover { background: var(--borda); }
+  .acoes button:hover, .chips button:not(.ativa):hover { background: var(--borda); }
   .cartao button:hover, nav button:not(.ativa):hover { color: var(--texto); }
   #enviar:not(:disabled):hover, #form-acesso button:hover { filter: brightness(1.08); }
 }
@@ -97,7 +97,7 @@ nav button.ativa { color: var(--destaque); font-weight: 600; }
 .msg .linha { margin: 2px 0; }
 .msg .antes { color: var(--suave); font-size: 13px; }
 .acoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-.acoes button, #chips button {
+.acoes button, .chips button {
   background: var(--painel-2);
   color: var(--texto);
   border: 1px solid var(--borda);
@@ -127,20 +127,18 @@ nav button.ativa { color: var(--destaque); font-weight: 600; }
 /* treino do dia */
 /* a aba do dia não tem respiro em cima: os chips ficam fixos no topo ao rolar a lista */
 #aba-dia { padding-top: 0; }
-#chips {
+/* fileira de botões que rola para o lado: treinos (aba do dia) e tipos (histórico) */
+.chips {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--fundo);
   padding: 4px 0 10px;
-  scrollbar-width: none; /* a rolagem lateral dos chips funciona, só não mostra a barra */
+  scrollbar-width: none; /* a rolagem lateral funciona, só não mostra a barra */
 }
-#chips::-webkit-scrollbar { display: none; }
-#chips button { white-space: nowrap; flex: none; }
-#chips button.ativa { background: var(--destaque); color: #0b1a10; border-color: var(--destaque); font-weight: 600; }
+.chips::-webkit-scrollbar { display: none; }
+.chips button { white-space: nowrap; flex: none; }
+#chips { position: sticky; top: 0; z-index: 1; background: var(--fundo); }
+.chips button.ativa { background: var(--destaque); color: #0b1a10; border-color: var(--destaque); font-weight: 600; }
 .cartao { background: var(--painel); border: 1px solid var(--borda); border-radius: 14px; padding: 12px; margin-bottom: 10px; }
 .cartao h3 { margin: 0 0 4px; font-size: 16px; }
 .cartao .meta { color: var(--suave); font-size: 14px; }
@@ -221,3 +219,18 @@ select {
   font-weight: 600;
 }
 #atualizar button:disabled { opacity: .6; }
+
+/* histórico: exercícios do tipo escolhido, para tocar */
+button.cartao.item-exercicio {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--toque);
+  color: var(--texto);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+}
+button.cartao.item-exercicio::after { content: "\203A"; color: var(--suave); font-size: 22px; font-weight: 400; }
+@media (hover: hover) { button.cartao.item-exercicio:hover { background: var(--painel-2); } }
