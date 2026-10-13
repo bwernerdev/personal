@@ -238,3 +238,18 @@ button.cartao.item-exercicio {
 }
 button.cartao.item-exercicio::after { content: "\203A"; color: var(--suave); font-size: 22px; font-weight: 400; }
 @media (hover: hover) { button.cartao.item-exercicio:hover { background: var(--painel-2); } }
+
+/* diagnóstico de tela (toque 5 vezes no título) */
+#diagnostico {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  margin: 0;
+  padding: max(24px, env(safe-area-inset-top)) 16px 16px;
+  overflow: auto;
+  background: rgba(0, 0, 0, .94);
+  color: var(--texto);
+  font: 13px/1.5 ui-monospace, Menlo, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
