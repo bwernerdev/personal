@@ -9,13 +9,21 @@
   --destaque: #5ec27a;
   --alerta: #f0b455;
   --erro: #ef6b6b;
+  --eu: #25422f;
+  --eu-borda: #2f5a3e;
   --nav: 58px;
+  --toque: 44px; /* altura mínima de qualquer botão (alvo de toque no iPhone) */
+  --largura: 640px; /* largura máxima do conteúdo em tablet e computador */
+  --margem: max(16px, calc((100% - var(--largura)) / 2)); /* 16px no celular; centraliza em tela larga */
 }
+
+html { -webkit-text-size-adjust: 100%; }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 html, body {
   height: 100%;
+  height: 100dvh; /* acompanha a barra do Safari; o 100% acima é o reserva */
   margin: 0;
   background: var(--fundo);
   color: var(--texto);
@@ -26,19 +34,29 @@ body {
   display: flex;
   flex-direction: column;
   padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left); /* iPhone deitado: não encosta no entalhe */
+  padding-right: env(safe-area-inset-right);
+}
+
+/* toque e teclado em qualquer botão ou campo */
+button { touch-action: manipulation; }
+button:active { opacity: .7; }
+button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-visible {
+  outline: 2px solid var(--destaque);
+  outline-offset: 2px;
 }
 
 header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  padding: 12px 16px 8px;
+  padding: 12px var(--margem) 8px;
 }
 h1 { margin: 0; font-size: 22px; }
 #aviso { font-size: 13px; color: var(--alerta); }
 
 main { flex: 1; min-height: 0; position: relative; }
-.aba { display: none; height: 100%; overflow-y: auto; padding: 4px 16px 16px; }
+.aba { display: none; height: 100%; overflow-y: auto; padding: 4px var(--margem) 16px; }
 .aba.ativa { display: block; }
 #aba-chat.ativa { display: flex; flex-direction: column; padding-bottom: 0; }
 
@@ -46,6 +64,7 @@ nav {
   display: flex;
   height: calc(var(--nav) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
+  padding-inline: calc(var(--margem) - 16px); /* botões da barra seguem a mesma coluna central */
   background: var(--painel);
   border-top: 1px solid var(--borda);
 }
@@ -62,7 +81,7 @@ nav button.ativa { color: var(--destaque); font-weight: 600; }
 /* chat */
 #mensagens { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 4px 0 12px; }
 .msg { max-width: 88%; padding: 10px 12px; border-radius: 14px; background: var(--painel); border: 1px solid var(--borda); white-space: pre-wrap; word-break: break-word; }
-.msg.eu { align-self: flex-end; background: #25422f; border-color: #2f5a3e; }
+.msg.eu { align-self: flex-end; background: var(--eu); border-color: var(--eu-borda); }
 .msg.erro { border-color: var(--erro); }
 .msg.alerta { border-color: var(--alerta); }
 .msg h3 { margin: 0 0 6px; font-size: 15px; }
@@ -74,7 +93,8 @@ nav button.ativa { color: var(--destaque); font-weight: 600; }
   color: var(--texto);
   border: 1px solid var(--borda);
   border-radius: 999px;
-  padding: 8px 12px;
+  padding: 0 14px;
+  min-height: var(--toque);
   font: inherit;
   font-size: 14px;
 }
@@ -91,11 +111,22 @@ nav button.ativa { color: var(--destaque); font-weight: 600; }
   padding: 10px 12px;
   font: inherit;
 }
-#enviar { background: var(--destaque); color: #0b1a10; border: 0; border-radius: 12px; padding: 0 16px; font-weight: 600; font-size: 16px; }
+#enviar { background: var(--destaque); color: #0b1a10; border: 0; border-radius: 12px; padding: 0 16px; min-width: var(--toque); min-height: var(--toque); font-weight: 600; font-size: 16px; }
 #enviar:disabled { opacity: .5; }
 
 /* treino do dia */
-#chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 10px; }
+/* a aba do dia não tem respiro em cima: os chips ficam fixos no topo ao rolar a lista */
+#aba-dia { padding-top: 0; }
+#chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--fundo);
+  padding: 4px 0 10px;
+}
 #chips button { white-space: nowrap; }
 #chips button.ativa { background: var(--destaque); color: #0b1a10; border-color: var(--destaque); font-weight: 600; }
 .cartao { background: var(--painel); border: 1px solid var(--borda); border-radius: 14px; padding: 12px; margin-bottom: 10px; }
@@ -103,7 +134,18 @@ nav button.ativa { color: var(--destaque); font-weight: 600; }
 .cartao .meta { color: var(--suave); font-size: 14px; }
 .cartao .ultimo { margin-top: 6px; font-size: 15px; }
 .cartao .ultimo.vazio { color: var(--suave); }
-.cartao button { margin-top: 8px; background: none; border: 0; color: var(--destaque); font: inherit; font-size: 14px; padding: 0; }
+.cartao button {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--toque);
+  margin-top: 4px;
+  background: none;
+  border: 0;
+  color: var(--destaque);
+  font: inherit;
+  font-size: 14px;
+  padding: 0 12px 0 0;
+}
 
 /* histórico */
 select {
