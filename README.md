@@ -35,6 +35,7 @@ iPhone (PWA)  ──►  /api (funções na Vercel)  ──►  Notion
 | `api/` | As rotas da API (uma função por arquivo) | [api/README.md](api/README.md) |
 | `lib/` | Regras do projeto: interpretador, Notion, treino do dia | [lib/README.md](lib/README.md) |
 | `data/` | Cópia da rotina para testes locais | [data/README.md](data/README.md) |
+| `scripts/` | Utilitários de linha de comando (ex.: ler as frases que as regras não entenderam) | [scripts/README.md](scripts/README.md) |
 | `docs/` | Formato das palavras-chave, modelo de dados, publicação | [docs/README.md](docs/README.md) |
 
 ## Primeiros passos

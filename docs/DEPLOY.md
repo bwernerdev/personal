@@ -33,6 +33,10 @@ Publique em produção:
 npx vercel --prod
 ```
 
+### Frases novas (para ensinar as regras)
+
+O app guarda no Notion as frases que as regras do chat não entendem, no banco **Frases novas** (já criado ao lado dos outros dois). **Conecte a integração a ele**, como no passo 1.3: abra o banco **Frases novas** → menu `•••` → **Conexões** → adicione a mesma integração. Sem isso o app continua funcionando, só não guarda as frases (o `/api/saude` mostra `frases: erro`). Como usar: [scripts/README.md](../scripts/README.md).
+
 ### (Opcional) Ajuda do Claude no chat
 
 Se quiser que o chat entenda frases livres, crie uma chave em https://console.anthropic.com/ e cadastre:

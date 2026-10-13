@@ -137,3 +137,12 @@ Qualquer falha (sem internet, erro da API, limite de uso, resposta recusada) vol
 - **Privacidade:** nesses casos o texto da frase (máx. 600 caracteres), a lista de exercícios e a data vão para a Anthropic. Nada do Notion além disso é enviado.
 - Chamada HTTP direta (`fetch`), sem SDK: a regra do projeto é não ter dependências. O Haiku 5.5 não tem "fallback" de recusa no servidor, então o parâmetro só é enviado com Opus/Sonnet; se a API devolver 400 para algum parâmetro, o código tenta de novo sem ele (e por último sem o formato JSON estruturado).
 - O código está em `lib/claude.js`; os testes simulam o Claude, nenhum chama a API de verdade.
+
+## Frases novas: o app aprende com o que não entendeu
+
+Toda frase que as regras **não resolvem** (erro, números confusos) e toda que pede confirmação por **palavra desconhecida** é guardada no banco **Frases novas** do Notion: a frase, o resultado (`Claude sugeriu`, `Claude não entendeu`, `Sem ajuda do Claude` ou `Pediu confirmação`), o motivo, a sugestão do Claude, **quantas vezes** apareceu e a última data. Frase que as regras resolvem, perguntam carga ou têm dúvida entre exercícios **não** é guardada.
+
+- Guardar nunca atrapalha o chat: erro ou demora de mais (4 s) só vão para o log da Vercel.
+- Só o texto da frase é guardado (máx. 300 caracteres), no **seu** Notion; nada vai para outro lugar.
+- Para ensinar as regras: peça **"inclua as frases novas"**; o fluxo e o script (`node scripts/frases.js listar`) estão em [`scripts/README.md`](../scripts/README.md).
+- Frase que reaparece depois de "incluída" volta sozinha para a lista de pendentes.
