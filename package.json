@@ -1,0 +1,14 @@
+{
+  "name": "personal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Personal trainer por chat: registra treinos por palavras-chave no Notion e mostra o último treino.",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}

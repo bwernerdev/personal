@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Personal</title>
+  <meta name="theme-color" content="#0f1115">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Personal">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1 id="titulo">Chat</h1>
+    <span id="aviso" hidden></span>
+  </header>
+
+  <main>
+    <section id="aba-chat" class="aba ativa">
+      <div id="mensagens" aria-live="polite"></div>
+      <form id="form-chat" autocomplete="off">
+        <textarea id="entrada" rows="1" placeholder="peito: inc 24 5x10, cross 15 4x12" enterkeyhint="send" autocapitalize="none" autocorrect="off" spellcheck="false"></textarea>
+        <button type="submit" id="enviar" aria-label="Enviar">Enviar</button>
+      </form>
+    </section>
+
+    <section id="aba-dia" class="aba">
+      <div id="chips"></div>
+      <div id="lista-dia"></div>
+    </section>
+
+    <section id="aba-historico" class="aba">
+      <select id="seletor-exercicio" aria-label="Exercício"></select>
+      <div id="lista-historico"></div>
+    </section>
+  </main>
+
+  <nav>
+    <button data-aba="chat" class="ativa">Chat</button>
+    <button data-aba="dia">Treino do dia</button>
+    <button data-aba="historico">Histórico</button>
+  </nav>
+
+  <div id="acesso" hidden>
+    <form id="form-acesso">
+      <h2>Código de acesso</h2>
+      <p>Digite o código definido no servidor (APP_CODE).</p>
+      <input id="codigo" type="password" autocomplete="current-password" autocapitalize="none" required>
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+
+  <script src="main.js" type="module"></script>
+</body>
+</html>

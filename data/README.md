@@ -1,0 +1,19 @@
+# data/
+
+Dados usados **só no modo de teste local** (`node server.js` sem `NOTION_TOKEN`). Em produção tudo vem do Notion.
+
+| Arquivo | O que é |
+|---|---|
+| `rotina.json` | Cópia da rotina do personal (40 exercícios, 6 treinos). Mesmo formato do banco **Rotina** no Notion |
+| `treinos.local.json` | Criado sozinho quando você registra treinos no modo de teste. Está no `.gitignore`; pode apagar à vontade |
+
+## Formato de cada exercício em `rotina.json`
+
+```json
+{ "exercicio": "Supino inclinado halter", "treino": "Peito/Tríceps", "ordem": 2,
+  "grupo": "Peito", "series": 5, "reps": "10-12" }
+```
+
+`reps` é texto porque o personal usa faixas (`10-12`, `6-12`) e tempo (`60 s`).
+
+Se o personal mudar a rotina: atualize o banco **Rotina** no Notion (é a fonte oficial) e, se quiser manter os testes iguais, este arquivo também.

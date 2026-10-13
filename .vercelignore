@@ -1,0 +1,5 @@
+# Arquivos que não vão para a Vercel.
+# server.js: servidor local, só para testar no computador.
+server.js
+data/treinos.local.json
+*.test.js

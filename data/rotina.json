@@ -1,0 +1,322 @@
+[
+  {
+    "exercicio": "Fortalecimento manguito halter",
+    "treino": "Peito/Tríceps",
+    "ordem": 1,
+    "grupo": "Ombros",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Supino inclinado halter",
+    "treino": "Peito/Tríceps",
+    "ordem": 2,
+    "grupo": "Peito",
+    "series": 5,
+    "reps": "10-12"
+  },
+  {
+    "exercicio": "Crossover (polia alta)",
+    "treino": "Peito/Tríceps",
+    "ordem": 3,
+    "grupo": "Peito",
+    "series": 4,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Supino chest press",
+    "treino": "Peito/Tríceps",
+    "ordem": 4,
+    "grupo": "Peito",
+    "series": 4,
+    "reps": "10"
+  },
+  {
+    "exercicio": "Voador",
+    "treino": "Peito/Tríceps",
+    "ordem": 5,
+    "grupo": "Peito",
+    "series": 3,
+    "reps": "15"
+  },
+  {
+    "exercicio": "Tríceps máquina",
+    "treino": "Peito/Tríceps",
+    "ordem": 6,
+    "grupo": "Braços",
+    "series": 3,
+    "reps": "25"
+  },
+  {
+    "exercicio": "Tríceps corda",
+    "treino": "Peito/Tríceps",
+    "ordem": 7,
+    "grupo": "Braços",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Cadeira extensora",
+    "treino": "Perna 1",
+    "ordem": 1,
+    "grupo": "Pernas",
+    "series": 4,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Agachamento livre",
+    "treino": "Perna 1",
+    "ordem": 2,
+    "grupo": "Pernas",
+    "series": 5,
+    "reps": "6-12"
+  },
+  {
+    "exercicio": "Mesa flexora",
+    "treino": "Perna 1",
+    "ordem": 3,
+    "grupo": "Pernas",
+    "series": 4,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Leg press 45°",
+    "treino": "Perna 1",
+    "ordem": 4,
+    "grupo": "Pernas",
+    "series": 4,
+    "reps": "10"
+  },
+  {
+    "exercicio": "Cadeira adutora",
+    "treino": "Perna 1",
+    "ordem": 5,
+    "grupo": "Pernas",
+    "series": 3,
+    "reps": "15"
+  },
+  {
+    "exercicio": "Panturrilha em pé",
+    "treino": "Perna 1",
+    "ordem": 6,
+    "grupo": "Pernas",
+    "series": 4,
+    "reps": "20"
+  },
+  {
+    "exercicio": "Puxada alta",
+    "treino": "Costas/Bíceps",
+    "ordem": 1,
+    "grupo": "Costas",
+    "series": 4,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Remada máquina (serrote)",
+    "treino": "Costas/Bíceps",
+    "ordem": 2,
+    "grupo": "Costas",
+    "series": 4,
+    "reps": "10"
+  },
+  {
+    "exercicio": "Pulldown polia ou máquina",
+    "treino": "Costas/Bíceps",
+    "ordem": 3,
+    "grupo": "Costas",
+    "series": 3,
+    "reps": "15"
+  },
+  {
+    "exercicio": "Puxador supinado máquina",
+    "treino": "Costas/Bíceps",
+    "ordem": 4,
+    "grupo": "Costas",
+    "series": 4,
+    "reps": "10"
+  },
+  {
+    "exercicio": "Remada baixa",
+    "treino": "Costas/Bíceps",
+    "ordem": 5,
+    "grupo": "Costas",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Rosca direta barra W",
+    "treino": "Costas/Bíceps",
+    "ordem": 6,
+    "grupo": "Braços",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Abdominal remador",
+    "treino": "Costas/Bíceps",
+    "ordem": 7,
+    "grupo": "Core",
+    "series": 4,
+    "reps": "20"
+  },
+  {
+    "exercicio": "Infra no chão",
+    "treino": "Costas/Bíceps",
+    "ordem": 8,
+    "grupo": "Core",
+    "series": 4,
+    "reps": "20"
+  },
+  {
+    "exercicio": "Fortalecimento manguito polia",
+    "treino": "Ombro/Trapézio",
+    "ordem": 1,
+    "grupo": "Ombros",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Desenvolvimento máquina",
+    "treino": "Ombro/Trapézio",
+    "ordem": 2,
+    "grupo": "Ombros",
+    "series": 4,
+    "reps": "10"
+  },
+  {
+    "exercicio": "Elevação lateral",
+    "treino": "Ombro/Trapézio",
+    "ordem": 3,
+    "grupo": "Ombros",
+    "series": 4,
+    "reps": "10"
+  },
+  {
+    "exercicio": "Elevação frontal",
+    "treino": "Ombro/Trapézio",
+    "ordem": 4,
+    "grupo": "Ombros",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Voador invertido",
+    "treino": "Ombro/Trapézio",
+    "ordem": 5,
+    "grupo": "Ombros",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Encolhimento ombro",
+    "treino": "Ombro/Trapézio",
+    "ordem": 6,
+    "grupo": "Ombros",
+    "series": 4,
+    "reps": "10"
+  },
+  {
+    "exercicio": "Mesa flexora",
+    "treino": "Perna 2",
+    "ordem": 1,
+    "grupo": "Pernas",
+    "series": 4,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Agachamento livre",
+    "treino": "Perna 2",
+    "ordem": 2,
+    "grupo": "Pernas",
+    "series": 5,
+    "reps": "6-12"
+  },
+  {
+    "exercicio": "Cadeira abdutora",
+    "treino": "Perna 2",
+    "ordem": 3,
+    "grupo": "Pernas",
+    "series": 3,
+    "reps": "15"
+  },
+  {
+    "exercicio": "Cadeira extensora",
+    "treino": "Perna 2",
+    "ordem": 4,
+    "grupo": "Pernas",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Panturrilha em pé",
+    "treino": "Perna 2",
+    "ordem": 5,
+    "grupo": "Pernas",
+    "series": 4,
+    "reps": "20"
+  },
+  {
+    "exercicio": "Tríceps barra reta polia",
+    "treino": "Bíceps/Tríceps",
+    "ordem": 1,
+    "grupo": "Braços",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Tríceps coice",
+    "treino": "Bíceps/Tríceps",
+    "ordem": 2,
+    "grupo": "Braços",
+    "series": 3,
+    "reps": "10"
+  },
+  {
+    "exercicio": "Tríceps francês",
+    "treino": "Bíceps/Tríceps",
+    "ordem": 3,
+    "grupo": "Braços",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Rosca martelo",
+    "treino": "Bíceps/Tríceps",
+    "ordem": 4,
+    "grupo": "Braços",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Rosca barra W",
+    "treino": "Bíceps/Tríceps",
+    "ordem": 5,
+    "grupo": "Braços",
+    "series": 3,
+    "reps": "12"
+  },
+  {
+    "exercicio": "Rosca concentrada halter",
+    "treino": "Bíceps/Tríceps",
+    "ordem": 6,
+    "grupo": "Braços",
+    "series": 3,
+    "reps": "10"
+  },
+  {
+    "exercicio": "Abdominal remador",
+    "treino": "Bíceps/Tríceps",
+    "ordem": 7,
+    "grupo": "Core",
+    "series": 4,
+    "reps": "10"
+  },
+  {
+    "exercicio": "Prancha",
+    "treino": "Bíceps/Tríceps",
+    "ordem": 8,
+    "grupo": "Core",
+    "series": 4,
+    "reps": "60 s"
+  }
+]
