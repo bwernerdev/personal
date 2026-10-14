@@ -1,6 +1,7 @@
 {
   "framework": null,
   "outputDirectory": "public",
+  "regions": ["iad1"],
   "functions": {
     "api/chat.js": { "maxDuration": 30 }
   },
