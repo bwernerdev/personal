@@ -13,6 +13,7 @@ Utilitários de linha de comando. Não vão para a Vercel (não estão em `api/`
 | Arquivo | Para quê |
 |---|---|
 | `frases.js` | Ver e dar baixa nas frases do chat que as regras não resolveram |
+| `dieta.js` | Gravar (`importar plano.json`) e ver (`mostrar`) o plano alimentar. O JSON é dado pessoal: guarde **fora** do repositório (formato em `lib/dieta.js`) |
 
 ## `frases.js`: ensinando as regras com as frases que falharam
 

@@ -105,7 +105,7 @@ async function chamar(caminho, opcoes = {}) {
 
 // ---------- abas ----------
 
-const TITULOS = { chat: 'Chat', dia: 'Treino do dia', historico: 'Histórico', guia: 'Exercícios' };
+const TITULOS = { chat: 'Chat', dia: 'Treino do dia', historico: 'Histórico', guia: 'Exercícios', dieta: 'Dieta' };
 let abaAtual = 'chat';
 
 function abrirAba(nome) {
@@ -120,6 +120,7 @@ function abrirAba(nome) {
   if (nome === 'dia') carregarDia(estado.diaSelecionado);
   if (nome === 'historico') prepararHistorico();
   if (nome === 'guia') abrirGuia();
+  if (nome === 'dieta') carregarDieta();
 }
 
 document.querySelectorAll('nav button').forEach((b) => (b.onclick = () => abrirAba(b.dataset.aba)));
@@ -206,6 +207,65 @@ function cartaoGuia(nome, g) {
 }
 
 $('#busca-guia').addEventListener('input', () => guiasCarregados && desenharGuia());
+
+// ---------- dieta ----------
+// O plano vem do servidor (só leitura). O ✓ de "comi" fica neste aparelho, um conjunto por dia.
+
+let dieta = null;
+const chaveComidas = () => `dieta:${hojeSP()}`;
+const lerComidas = () => {
+  try {
+    return JSON.parse(guardado.ler(chaveComidas()) || '[]');
+  } catch {
+    return [];
+  }
+};
+
+async function carregarDieta() {
+  const lista = $('#lista-dieta');
+  if (!dieta) lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Carregando…'));
+  try {
+    dieta = await chamar('/api/dieta');
+    desenharDieta();
+  } catch (e) {
+    if (!dieta) lista.replaceChildren(el('div', { class: 'vazio-geral' }, e.message));
+  }
+}
+
+const linhasDaRefeicao = (linhas) =>
+  el('ul', { class: 'linhas-dieta' }, ...linhas.map((opcoes) => el('li', {}, ...opcoes.flatMap((o, i) => (i ? [el('span', { class: 'ou' }, ' ou '), o] : [o])))));
+
+function desenharDieta() {
+  const comidas = new Set(lerComidas());
+  const lista = $('#lista-dieta');
+  if (!dieta.refeicoes.length) {
+    lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Nenhum plano alimentar cadastrado.'));
+    return;
+  }
+  lista.replaceChildren(
+    ...dieta.refeicoes.map((r) => {
+      const feita = comidas.has(r.hora);
+      const botao = el('button', { class: feita ? 'comi feito' : 'comi', 'aria-pressed': String(feita) }, feita ? '✓ Feito' : 'Marcar como feito');
+      botao.onclick = () => {
+        const atual = new Set(lerComidas());
+        if (atual.has(r.hora)) atual.delete(r.hora);
+        else atual.add(r.hora);
+        guardado.gravar(chaveComidas(), JSON.stringify([...atual]));
+        desenharDieta();
+      };
+      return el(
+        'div',
+        { class: feita ? 'cartao feito' : 'cartao' },
+        el('h3', {}, `${r.hora} · ${r.nome}`),
+        linhasDaRefeicao(r.linhas),
+        r.nota ? el('p', { class: 'meta' }, r.nota) : '',
+        ...(r.substituicoes || []).map((sub) => el('details', { class: 'sub-dieta' }, el('summary', {}, sub.nome), linhasDaRefeicao(sub.linhas))),
+        botao,
+      );
+    }),
+    dieta.orientacao ? el('p', { class: 'meta' }, dieta.orientacao) : '',
+  );
+}
 
 // ---------- chat ----------
 

@@ -17,6 +17,7 @@ Funções serverless da Vercel: **um arquivo = uma rota** (`api/dia.js` → `/ap
 | `/api/apagar` | POST `{ id }` | Manda um registro do banco Treinos para a lixeira (no Notion dá para restaurar). Recusa páginas de outros bancos |
 | `/api/dia` | GET `?treino=` | Rotina do treino escolhido (ou o próximo do ciclo) com o último registro de cada exercício; também traz `catalogo`, `grupos` e `grupoDoExercicio` (filtro por tipo do Histórico) |
 | `/api/historico` | GET `?exercicio=` | Registros passados de um exercício, do mais recente para o mais antigo (cada um com `id`) |
+| `/api/dieta` | GET | Plano alimentar (refeições com horário, opções "ou", substituições e nota). Só leitura; o plano é gravado por `scripts/dieta.js` |
 | `/api/saude` | GET | Confere se o servidor lê os bancos do Notion (Rotina, Treinos e Frases novas) e mostra se a IA está ligada e qual (use depois de publicar) |
 
 ## Como adicionar uma rota

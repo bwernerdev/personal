@@ -35,3 +35,5 @@ Regras do projeto. É aqui que mora a lógica; `api/` e `public/` só chamam e m
 - **Testes:** `parser.test.js`, `frases-naturais.test.js`, `datas.test.js`, `treino-do-dia.test.js`, `api.test.js`, `ia.test.js` e `notion.test.js` (`node --test`; a IA e o Notion são sempre simulados, nenhum teste chama a API de verdade). O `api.test.js` chama as rotas de `api/` no modo local, com um arquivo temporário (variável `TREINOS_LOCAL`), e também cobre o limite de tentativas do código de `http.js`. O que fala com o Notion de verdade (`notion.js`) não tem teste automático: confira com `/api/saude` depois de publicar.
 - **Nova coluna do Notion:** `notion.js` (ler e gravar), `parser.js` se vier do chat, e `docs/README.md`.
 - **Nova regra de leitura:** `treino-do-dia.js`, com função pura.
+
+- `dieta.js` — formato e validação do plano alimentar (`validarDieta`). Os dados vivem no Notion (linhas de "Frases novas" com Resultado = "Dieta", uma por refeição, JSON em "Sugestão da IA") ou em `data/dieta.local.json`; nunca no repositório (público).
