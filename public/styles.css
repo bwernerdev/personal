@@ -117,6 +117,12 @@ nav button.ativa { color: var(--destaque); font-weight: 600; }
   flex: 1;
   resize: none;
   max-height: 120px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  outline: none;
+  -webkit-user-select: text;
+  user-select: text;
   background: var(--painel);
   color: var(--texto);
   border: 1px solid var(--borda);
@@ -126,7 +132,9 @@ nav button.ativa { color: var(--destaque); font-weight: 600; }
 }
 #enviar { background: var(--destaque); color: #0b1a10; border: 0; border-radius: 12px; padding: 0 16px; min-width: var(--toque); min-height: var(--toque); font-weight: 600; font-size: 16px; }
 #enviar:disabled { opacity: .5; }
-#entrada { min-height: var(--toque); }
+#entrada { min-height: var(--toque); box-sizing: border-box; }
+#entrada[data-vazio]::before { content: attr(data-placeholder); color: var(--suave, #8b93a1); pointer-events: none; }
+#entrada:focus { border-color: var(--destaque); }
 
 /* treino do dia */
 /* a aba do dia não tem respiro em cima: os chips ficam fixos no topo ao rolar a lista */
