@@ -1,10 +1,11 @@
 import { rota } from '../lib/http.js';
 import { interpretar, rotinaDoApp } from '../lib/parser.js';
 import { hojeSP, hojeInformado } from '../lib/datas.js';
-import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase } from '../lib/store.js';
+import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase, listarMemorias, anotarMemoria, apagarMemoria } from '../lib/store.js';
 import { jaRegistrado } from '../lib/treino-do-dia.js';
 import { responderConsulta } from '../lib/consultas.js';
 import { habilitado as iaDisponivel, sugerir, perguntar, pareceConsulta } from '../lib/ia.js';
+import { comandoDeMemoria, executarMemoria } from '../lib/memoria.js';
 
 // Guarda a frase que as regras não resolveram (para ensiná-las depois: scripts/frases.js). Nunca atrapalha
 // o chat: erro ou demora de mais (4 s) só vão para o log.
@@ -27,6 +28,16 @@ export default rota('POST', async (req) => {
   const { texto, usarRotina = false, forcar = false, hoje, historico } = req.body || {};
   if (!texto || !String(texto).trim()) return { status: 'vazio' };
 
+  const dia0 = hojeInformado(hoje, hojeSP());
+  // "lembre que tenho dor no ombro" / "o que você lembra de mim?" / "esqueça 2": regras do servidor, sem IA.
+  const memoria = comandoDeMemoria(texto);
+  if (memoria) {
+    const mensagem = await executarMemoria(memoria, await listarMemorias(), { guardar: (nota) => anotarMemoria(nota, dia0), apagar: apagarMemoria });
+    return { status: 'resposta', origem: 'regras', mensagem };
+  }
+  // Lembranças que a pessoa pediu para a IA guardar; se o Notion falhar, a IA responde sem elas.
+  const memoriasDaIa = () => listarMemorias().then((l) => l.map((m) => m.nota), () => []);
+
   const rotinaInteira = await listarRotina();
   const rotina = rotinaDoApp(rotinaInteira); // treinos em standby ficam de fora do registro
   const dia = hojeInformado(hoje, hojeSP());
@@ -37,7 +48,7 @@ export default rota('POST', async (req) => {
     const direta = responderConsulta(texto, { registros, rotina: rotinaInteira, hoje: dia });
     if (direta) return { status: 'resposta', origem: 'regras', mensagem: direta };
     if (iaDisponivel()) {
-      const resposta = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros, hoje: dia });
+      const resposta = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros, hoje: dia, memorias: await memoriasDaIa() });
       if (resposta) return { status: 'resposta', origem: 'ia', mensagem: resposta.mensagem };
     }
   }
@@ -53,7 +64,7 @@ export default rota('POST', async (req) => {
   // ("me explica por que se faz drop set" -> "Mesa flexora?"). Não é treino: a IA responde.
   const palavrasIgnoradas = (p) => (/ignorei: ([^)]*)\)/.exec(p.mensagem || '')?.[1].split(',').length ?? 0);
   if (!r.pronto && r.registros.length === 0 && !/\d/.test(texto) && iaDisponivel() && r.pendentes.some((p) => p.tipo === 'confirmar_exercicio' && palavrasIgnoradas(p) >= 4)) {
-    const livre = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros: await listarTreinos(5000), hoje: dia });
+    const livre = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros: await listarTreinos(5000), hoje: dia, memorias: await memoriasDaIa() });
     if (livre) return { status: 'resposta', origem: 'ia', mensagem: livre.mensagem };
   }
 
@@ -76,7 +87,7 @@ export default rota('POST', async (req) => {
         resposta = { ...resposta, ajuda: ajuda.mensagem };
         // Nem as regras nem a reescrita entenderam e nada foi registrado: não é um treino, a IA responde livremente.
         if (r.registros.length === 0 && !r.pendentes.some((p) => p.tipo === 'confuso')) {
-          const livre = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros: await listarTreinos(5000), hoje: dia });
+          const livre = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros: await listarTreinos(5000), hoje: dia, memorias: await memoriasDaIa() });
           if (livre) {
             await anotarFraseNova({ frase: texto, resultado: 'IA respondeu livremente', motivo, sugestao: null, hoje: dia });
             return { status: 'resposta', origem: 'ia', mensagem: livre.mensagem };
