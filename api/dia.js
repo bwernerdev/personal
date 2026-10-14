@@ -1,6 +1,7 @@
 import { rota } from '../lib/http.js';
 import { listarRotina, listarTreinos, ultimoDoExercicio } from '../lib/store.js';
-import { montarDia } from '../lib/treino-do-dia.js';
+import { hojeSP } from '../lib/datas.js';
+import { montarDia, marcarFeitosHoje } from '../lib/treino-do-dia.js';
 
 // GET ?treino=Perna 1   (sem parâmetro: o próximo treino do ciclo)
 export default rota('GET', async (req) => {
@@ -14,5 +15,5 @@ export default rota('GET', async (req) => {
         e.ultimo = await ultimoDoExercicio(treinos, e.exercicio, e.treino);
       }),
   );
-  return dia;
+  return marcarFeitosHoje(dia, hojeSP());
 });
