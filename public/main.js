@@ -34,7 +34,7 @@ function el(tag, props = {}, ...filhos) {
 
 // ---------- formatação ----------
 
-const num = (n) => String(n).replace('.', ',');
+const virgula = (n) => String(n).replace('.', ',');
 const DIAS_SEMANA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 const data = (iso) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : '');
 const dataComDia = (iso) => (iso ? `${data(iso)}, ${DIAS_SEMANA[new Date(`${iso}T12:00:00Z`).getUTCDay()]}` : '');
@@ -234,7 +234,14 @@ async function carregarDieta() {
 }
 
 const linhasDaRefeicao = (linhas) =>
-  el('ul', { class: 'linhas-dieta' }, ...linhas.map((opcoes) => el('li', {}, ...opcoes.flatMap((o, i) => (i ? [el('span', { class: 'ou' }, ' ou '), o] : [o])))));
+  el('ul', { class: 'linhas-dieta' }, ...linhas.map((opcoes) => el('li', {}, ...opcoes.flatMap((o, i) => (i ? [el('span', { class: 'ou' }, ' ou '), opcaoDieta(o)] : [opcaoDieta(o)])))));
+
+
+// Uma opção: texto e, quando existe, os valores aproximados (kcal, proteína, carboidrato).
+function opcaoDieta(o) {
+  if (typeof o === 'string') return o;
+  return el('span', {}, o.t, el('span', { class: 'macros' }, ` ≈ ${o.k} kcal · ${virgula(o.p)} g prot. · ${o.c} g carb.`));
+}
 
 function desenharDieta() {
   const comidas = new Set(lerComidas());

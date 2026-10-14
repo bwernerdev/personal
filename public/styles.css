@@ -312,3 +312,4 @@ button.cartao.item-exercicio::after { content: "\203A"; color: var(--suave); fon
 .sub-dieta summary { min-height: var(--toque); display: flex; align-items: center; color: var(--destaque); cursor: pointer; }
 .cartao button.comi { width: 100%; margin-top: 8px; }
 .cartao button.comi.feito { background: var(--destaque); color: #0b1a10; }
+.linhas-dieta .macros { display: block; color: var(--suave); font-size: 13px; }

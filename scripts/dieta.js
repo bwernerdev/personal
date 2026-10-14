@@ -23,7 +23,7 @@ if (comando === 'importar') {
   console.log('Receitas gravadas.');
 } else if (comando === 'mostrar') {
   const { refeicoes } = await listarDieta();
-  for (const r of refeicoes) console.log(`${r.hora} ${r.nome}: ${r.linhas.map((l) => l.join(' OU ')).join('; ')}`);
+  for (const r of refeicoes) console.log(`${r.hora} ${r.nome}: ${r.linhas.map((l) => l.map((o) => o.t ?? o).join(' OU ')).join('; ')}`);
   console.log(`
 ${(await listarReceitas()).length} receita(s)`);
 } else {
