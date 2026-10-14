@@ -105,7 +105,7 @@ async function chamar(caminho, opcoes = {}) {
 
 // ---------- abas ----------
 
-const TITULOS = { chat: 'Chat', dia: 'Treino do dia', historico: 'Histórico', guia: 'Exercícios', dieta: 'Dieta' };
+const TITULOS = { chat: 'Chat', dia: 'Treino do dia', historico: 'Histórico', guia: 'Exercícios', dieta: 'Dieta', receitas: 'Receitas' };
 let abaAtual = 'chat';
 
 function abrirAba(nome) {
@@ -121,6 +121,7 @@ function abrirAba(nome) {
   if (nome === 'historico') prepararHistorico();
   if (nome === 'guia') abrirGuia();
   if (nome === 'dieta') carregarDieta();
+  if (nome === 'receitas') carregarReceitas();
 }
 
 document.querySelectorAll('nav button').forEach((b) => (b.onclick = () => abrirAba(b.dataset.aba)));
@@ -264,6 +265,51 @@ function desenharDieta() {
       );
     }),
     dieta.orientacao ? el('p', { class: 'meta' }, dieta.orientacao) : '',
+  );
+}
+
+// ---------- receitas ----------
+// Feitas só com os alimentos e as quantidades do plano; vêm do servidor (só leitura).
+
+let receitas = null;
+
+async function carregarReceitas() {
+  const lista = $('#lista-receitas');
+  if (!receitas) lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Carregando…'));
+  try {
+    receitas = (await chamar('/api/receitas')).receitas;
+    desenharReceitas();
+  } catch (e) {
+    if (!receitas) lista.replaceChildren(el('div', { class: 'vazio-geral' }, e.message));
+  }
+}
+
+function desenharReceitas() {
+  const lista = $('#lista-receitas');
+  if (!receitas.length) {
+    lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Nenhuma receita cadastrada.'));
+    return;
+  }
+  const porRefeicao = new Map();
+  for (const r of receitas) porRefeicao.set(r.refeicao, [...(porRefeicao.get(r.refeicao) || []), r]);
+  lista.replaceChildren(
+    ...[...porRefeicao].flatMap(([refeicao, itens]) => [
+      el('h3', { class: 'grupo-guia' }, refeicao),
+      ...itens.map((r) =>
+        el(
+          'details',
+          { class: 'cartao guia' },
+          el('summary', {}, r.nome),
+          el('p', { class: 'meta' }, [`Porção: ${r.porcao}`, r.valores].filter(Boolean).join(' · ')),
+          el('strong', {}, 'Ingredientes'),
+          el('ul', { class: 'linhas-dieta' }, ...r.ingredientes.map((i) => el('li', {}, i))),
+          el('strong', {}, 'Preparo'),
+          el('ol', {}, ...r.preparo.map((p) => el('li', {}, p))),
+          r.nota ? el('p', { class: 'meta' }, r.nota) : '',
+        ),
+      ),
+    ]),
+    el('p', { class: 'meta' }, 'Calorias e proteína aproximadas (TACO). Confirme com a nutricionista.'),
   );
 }
 

@@ -83,11 +83,13 @@ nav {
 }
 nav button {
   flex: 1;
+  min-width: 0;
+  padding: 0 2px;
   background: none;
   border: 0;
   color: var(--suave);
   font: inherit;
-  font-size: 14px;
+  font-size: 12px;
 }
 nav button.ativa { color: var(--destaque); font-weight: 600; }
 

@@ -36,4 +36,4 @@ Regras do projeto. É aqui que mora a lógica; `api/` e `public/` só chamam e m
 - **Nova coluna do Notion:** `notion.js` (ler e gravar), `parser.js` se vier do chat, e `docs/README.md`.
 - **Nova regra de leitura:** `treino-do-dia.js`, com função pura.
 
-- `dieta.js` — formato e validação do plano alimentar (`validarDieta`). Os dados vivem no Notion (linhas de "Frases novas" com Resultado = "Dieta", uma por refeição, JSON em "Sugestão da IA") ou em `data/dieta.local.json`; nunca no repositório (público).
+- `dieta.js` — formato e validação do plano alimentar (`validarDieta`) e das receitas (`validarReceitas`, linhas com Resultado = "Receita"). Os dados vivem no Notion (linhas de "Frases novas" com Resultado = "Dieta", uma por refeição, JSON em "Sugestão da IA") ou em `data/dieta.local.json`; nunca no repositório (público).
