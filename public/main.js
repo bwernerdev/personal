@@ -264,7 +264,10 @@ function tratarResposta(resp, texto, usarRotina, titulo) {
     return true;
   }
   if (resp.status === 'precisa_resposta') mostrarPerguntas(resp, texto);
-  else if (resp.status === 'resposta') bolha('', el('h3', {}, resp.origem === 'ia' ? 'Resposta da IA' : 'Seu histórico'), resp.mensagem);
+  else if (resp.status === 'resposta') {
+    bolha('', el('h3', {}, resp.origem === 'ia' ? 'Resposta da IA' : 'Seu histórico'), resp.mensagem);
+    lembrar('ia', resp.mensagem);
+  }
   else if (resp.status === 'sugestao') mostrarSugestao(resp);
   else if (resp.status === 'duplicado') mostrarDuplicado(resp, texto, usarRotina);
   else if (resp.status === 'erro_parcial') {
@@ -276,6 +279,13 @@ function tratarResposta(resp, texto, usarRotina, titulo) {
 
 const eSemRede = (e) => !navigator.onLine || e instanceof TypeError;
 
+// Memória da conversa (só na tela; some ao fechar o app): as últimas mensagens vão junto para a IA lembrar do assunto.
+const conversa = [];
+function lembrar(de, texto) {
+  conversa.push({ de, texto: String(texto).slice(0, 600) });
+  if (conversa.length > 10) conversa.shift();
+}
+
 async function enviar(texto, usarRotina = false, rotuloUsuario = null, { forcar = false, hoje = hojeSP() } = {}) {
   const botao = $('#enviar');
   botao.disabled = true;
@@ -283,7 +293,9 @@ async function enviar(texto, usarRotina = false, rotuloUsuario = null, { forcar 
   let pensando = null;
   const espera = setTimeout(() => (pensando = bolha('', el('div', { class: 'antes' }, 'Pensando…'))), 1500);
   try {
-    const resp = await chamar('/api/chat', { method: 'POST', body: JSON.stringify({ texto, usarRotina, forcar, hoje }) });
+    const historico = conversa.slice();
+    lembrar('eu', texto);
+    const resp = await chamar('/api/chat', { method: 'POST', body: JSON.stringify({ texto, usarRotina, forcar, hoje, historico }) });
     clearTimeout(espera);
     pensando?.remove();
     // No celular (teclado próprio, sem cursor para editar) o campo sempre esvazia; o texto enviado fica na bolha.
