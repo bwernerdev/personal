@@ -2,7 +2,7 @@
 // (por isso o "treino do dia" e o último treino aparecem mesmo sem sinal).
 // Registrar treino exige internet: POST nunca passa pelo cache.
 
-const VERSAO = 'personal-v23';
+const VERSAO = 'personal-v24';
 const CASCA = [
   './',
   'index.html',
