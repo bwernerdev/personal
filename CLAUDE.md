@@ -26,7 +26,7 @@ Dois bancos (IDs em `lib/notion.js`): **Rotina** e **Treinos**. Se mudar colunas
 
 - `lib/parser.js` — interpretador de regras (`interpretar`, `lerParte`, `juntarSoltos`, `acharExercicio`; exporta `ATALHO`, `SINONIMOS`). Mexeu aqui: `node --test`.
 - `lib/linguagem.js` — texto: números por extenso, `NxM`, `ENFEITES`, datas, `dividirItens`.
-- `lib/ia.js` — ajudante opcional (Gemini/Claude): só reescreve, valida números, nunca grava.
+- `lib/ia.js` — ajudante opcional (Gemini/Claude): reescreve (com exemplos de `frases-naturais.js`), responde consultas/conversa livre (busca do Google, função `buscar_registros`, resumo de `estatisticas.js`, lembranças de `memoria.js`); valida números, nunca grava.
 - `lib/notion.js` / `lib/store.js` — Notion (IDs dos bancos) / camada que escolhe Notion ou arquivo local (`data/*.local.json`).
 - `lib/frases-naturais.js` — tabela de frases que as regras devem entender (+ `.test.js`).
 - `lib/treino-do-dia.js`, `lib/datas.js`, `lib/http.js` — treino do dia, datas, limite de requisições.

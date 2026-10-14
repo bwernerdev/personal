@@ -17,6 +17,8 @@ Regras do projeto. É aqui que mora a lógica; `api/` e `public/` só chamam e m
 | `linguagem.js` | Linguagem do dia a dia, em funções puras: números por extenso, "5 séries de 10" → `5x10`, palavras de enfeite, separação de itens ("e depois", traço, ponto) |
 | `normalizar.js` | Tira acentos/pontuação e quebra em palavras para comparar |
 | `datas.js` | Datas no fuso de São Paulo: `hoje`, `ontem`, `seg`, `05/10` |
+| `estatisticas.js` | Números exatos para a IA (vezes, último, recorde, variação de carga, frequência); a IA copia em vez de contar |
+| `memoria.js` | "lembre que ...", "o que você lembra de mim?", "esqueça 2": regras do servidor; as lembranças entram no prompt da IA (ficam no banco "Frases novas" com Resultado = Memória) |
 | `treino-do-dia.js` | Monta a tela "Treino do dia" e o histórico a partir da rotina e dos treinos; decide se um registro já existe (`jaRegistrado`) |
 | `notion.js` | Chamadas à API do Notion (só servidor) |
 | `store.js` | Escolhe a fonte de dados: Notion em produção, arquivos locais no modo de teste. Registrar, apagar e buscar por exercício |
