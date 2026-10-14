@@ -34,7 +34,7 @@ function el(tag, props = {}, ...filhos) {
 
 // ---------- formatação ----------
 
-const num = (n) => String(n).replace('.', ',');
+const virgula = (n) => String(n).replace('.', ',');
 const DIAS_SEMANA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 const data = (iso) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : '');
 const dataComDia = (iso) => (iso ? `${data(iso)}, ${DIAS_SEMANA[new Date(`${iso}T12:00:00Z`).getUTCDay()]}` : '');
@@ -105,7 +105,7 @@ async function chamar(caminho, opcoes = {}) {
 
 // ---------- abas ----------
 
-const TITULOS = { chat: 'Chat', dia: 'Treino do dia', historico: 'Histórico', guia: 'Exercícios' };
+const TITULOS = { chat: 'Chat', dia: 'Treino do dia', historico: 'Histórico', guia: 'Exercícios', dieta: 'Dieta', receitas: 'Receitas' };
 let abaAtual = 'chat';
 
 function abrirAba(nome) {
@@ -120,6 +120,8 @@ function abrirAba(nome) {
   if (nome === 'dia') carregarDia(estado.diaSelecionado);
   if (nome === 'historico') prepararHistorico();
   if (nome === 'guia') abrirGuia();
+  if (nome === 'dieta') carregarDieta();
+  if (nome === 'receitas') carregarReceitas();
 }
 
 document.querySelectorAll('nav button').forEach((b) => (b.onclick = () => abrirAba(b.dataset.aba)));
@@ -206,6 +208,116 @@ function cartaoGuia(nome, g) {
 }
 
 $('#busca-guia').addEventListener('input', () => guiasCarregados && desenharGuia());
+
+// ---------- dieta ----------
+// O plano vem do servidor (só leitura). O ✓ de "comi" fica neste aparelho, um conjunto por dia.
+
+let dieta = null;
+const chaveComidas = () => `dieta:${hojeSP()}`;
+const lerComidas = () => {
+  try {
+    return JSON.parse(guardado.ler(chaveComidas()) || '[]');
+  } catch {
+    return [];
+  }
+};
+
+async function carregarDieta() {
+  const lista = $('#lista-dieta');
+  if (!dieta) lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Carregando…'));
+  try {
+    dieta = await chamar('/api/dieta');
+    desenharDieta();
+  } catch (e) {
+    if (!dieta) lista.replaceChildren(el('div', { class: 'vazio-geral' }, e.message));
+  }
+}
+
+const linhasDaRefeicao = (linhas) =>
+  el('ul', { class: 'linhas-dieta' }, ...linhas.map((opcoes) => el('li', {}, ...opcoes.flatMap((o, i) => (i ? [el('span', { class: 'ou' }, ' ou '), opcaoDieta(o)] : [opcaoDieta(o)])))));
+
+
+// Uma opção: texto e, quando existe, os valores aproximados (kcal, proteína, carboidrato).
+function opcaoDieta(o) {
+  if (typeof o === 'string') return o;
+  return el('span', {}, o.t, el('span', { class: 'macros' }, ` ≈ ${o.k} kcal · ${virgula(o.p)} g prot. · ${o.c} g carb.`));
+}
+
+function desenharDieta() {
+  const comidas = new Set(lerComidas());
+  const lista = $('#lista-dieta');
+  if (!dieta.refeicoes.length) {
+    lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Nenhum plano alimentar cadastrado.'));
+    return;
+  }
+  lista.replaceChildren(
+    ...dieta.refeicoes.map((r) => {
+      const feita = comidas.has(r.hora);
+      const botao = el('button', { class: feita ? 'comi feito' : 'comi', 'aria-pressed': String(feita) }, feita ? '✓ Feito' : 'Marcar como feito');
+      botao.onclick = () => {
+        const atual = new Set(lerComidas());
+        if (atual.has(r.hora)) atual.delete(r.hora);
+        else atual.add(r.hora);
+        guardado.gravar(chaveComidas(), JSON.stringify([...atual]));
+        desenharDieta();
+      };
+      return el(
+        'div',
+        { class: feita ? 'cartao feito' : 'cartao' },
+        el('h3', {}, `${r.hora} · ${r.nome}`),
+        linhasDaRefeicao(r.linhas),
+        r.nota ? el('p', { class: 'meta' }, r.nota) : '',
+        ...(r.substituicoes || []).map((sub) => el('details', { class: 'sub-dieta' }, el('summary', {}, sub.nome), linhasDaRefeicao(sub.linhas))),
+        botao,
+      );
+    }),
+    dieta.orientacao ? el('p', { class: 'meta' }, dieta.orientacao) : '',
+  );
+}
+
+// ---------- receitas ----------
+// Feitas só com os alimentos e as quantidades do plano; vêm do servidor (só leitura).
+
+let receitas = null;
+
+async function carregarReceitas() {
+  const lista = $('#lista-receitas');
+  if (!receitas) lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Carregando…'));
+  try {
+    receitas = (await chamar('/api/receitas')).receitas;
+    desenharReceitas();
+  } catch (e) {
+    if (!receitas) lista.replaceChildren(el('div', { class: 'vazio-geral' }, e.message));
+  }
+}
+
+function desenharReceitas() {
+  const lista = $('#lista-receitas');
+  if (!receitas.length) {
+    lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Nenhuma receita cadastrada.'));
+    return;
+  }
+  const porRefeicao = new Map();
+  for (const r of receitas) porRefeicao.set(r.refeicao, [...(porRefeicao.get(r.refeicao) || []), r]);
+  lista.replaceChildren(
+    ...[...porRefeicao].flatMap(([refeicao, itens]) => [
+      el('h3', { class: 'grupo-guia' }, refeicao),
+      ...itens.map((r) =>
+        el(
+          'details',
+          { class: 'cartao guia' },
+          el('summary', {}, r.nome),
+          el('p', { class: 'meta' }, [`Porção: ${r.porcao}`, r.valores].filter(Boolean).join(' · ')),
+          el('strong', {}, 'Ingredientes'),
+          el('ul', { class: 'linhas-dieta' }, ...r.ingredientes.map((i) => el('li', {}, i))),
+          el('strong', {}, 'Preparo'),
+          el('ol', {}, ...r.preparo.map((p) => el('li', {}, p))),
+          r.nota ? el('p', { class: 'meta' }, r.nota) : '',
+        ),
+      ),
+    ]),
+  );
+}
 
 // ---------- chat ----------
 

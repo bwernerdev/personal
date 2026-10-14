@@ -83,11 +83,13 @@ nav {
 }
 nav button {
   flex: 1;
+  min-width: 0;
+  padding: 0 2px;
   background: none;
   border: 0;
   color: var(--suave);
   font: inherit;
-  font-size: 14px;
+  font-size: 12px;
 }
 nav button.ativa { color: var(--destaque); font-weight: 600; }
 
@@ -301,3 +303,13 @@ button.cartao.item-exercicio::after { content: "\203A"; color: var(--suave); fon
 .fotos-guia img { flex: 1; min-width: 0; width: 50%; border-radius: 8px; background: #fff; }
 .cartao.feito { border-color: var(--destaque); }
 .cartao h3 .check { margin-left: 8px; color: var(--destaque); font-weight: 700; }
+
+/* dieta */
+.linhas-dieta { margin: 6px 0; padding-left: 18px; }
+.linhas-dieta li { margin: 4px 0; line-height: 1.4; }
+.linhas-dieta .ou { color: var(--suave); font-weight: 600; }
+.sub-dieta { margin: 6px 0; }
+.sub-dieta summary { min-height: var(--toque); display: flex; align-items: center; color: var(--destaque); cursor: pointer; }
+.cartao button.comi { width: 100%; margin-top: 8px; }
+.cartao button.comi.feito { background: var(--destaque); color: #0b1a10; }
+.linhas-dieta .macros { display: block; color: var(--suave); font-size: 13px; }

@@ -9,3 +9,5 @@ data/treinos.local.json
 .claude/
 data/frases.local.json
 data/memoria.local.json
+data/dieta.local.json
+data/receitas.local.json
