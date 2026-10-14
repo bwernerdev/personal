@@ -288,3 +288,12 @@ button.cartao.item-exercicio::after { content: "\203A"; color: var(--suave); fon
 .tec-balao span { flex: 1; text-align: center; font-size: 26px; line-height: 52px; border-radius: 8px; color: #fff; }
 .tec-balao.aviso span { font-size: 14px; line-height: 1.3; padding: 8px 10px; flex: none; text-align: left; }
 .tec-balao span.marcada { background: var(--destaque); color: #0b1a10; }
+
+/* guia de exercícios */
+#busca-guia { width: 100%; min-height: var(--toque); margin-bottom: 10px; padding: 0 12px; border: 1px solid var(--borda); border-radius: 10px; background: var(--painel); color: var(--texto); font: inherit; }
+.grupo-guia { margin: 14px 0 6px; color: var(--suave); font-size: 13px; text-transform: uppercase; letter-spacing: .05em; }
+.guia summary { min-height: var(--toque); display: flex; align-items: center; font-weight: 600; cursor: pointer; }
+.guia ol { margin: 6px 0; padding-left: 20px; }
+.guia li, .guia p { margin: 4px 0; line-height: 1.4; }
+.guia .erro-guia { color: var(--erro); }
+.guia a { color: var(--destaque); }
