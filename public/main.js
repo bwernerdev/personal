@@ -526,8 +526,8 @@ function renderDia() {
     ...d.exercicios.map((ex) =>
       el(
         'div',
-        { class: 'cartao' },
-        el('h3', {}, ex.exercicio),
+        { class: ex.feitoHoje ? 'cartao feito' : 'cartao' },
+        el('h3', {}, ex.exercicio, ex.feitoHoje ? el('span', { class: 'check', 'aria-label': 'Feito hoje', title: 'Feito hoje' }, '✓') : ''),
         el('div', { class: 'meta' }, ex.series ? `Personal: ${ex.series}×${String(ex.reps).replace("-", "–")}` : "Séries e repetições: você define"),
         ex.ultimo
           ? el('div', { class: 'ultimo' }, `Último (${dataComDia(ex.ultimo.data)}${ex.ultimo.deOutroTreino ? ', outro treino' : ''}): ${resumoDia(ex.ultimo)}`)

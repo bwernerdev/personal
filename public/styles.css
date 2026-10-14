@@ -299,3 +299,5 @@ button.cartao.item-exercicio::after { content: "\203A"; color: var(--suave); fon
 .guia a { color: var(--destaque); }
 .fotos-guia { display: flex; gap: 8px; margin: 6px 0; }
 .fotos-guia img { flex: 1; min-width: 0; width: 50%; border-radius: 8px; background: #fff; }
+.cartao.feito { border-color: var(--destaque); }
+.cartao h3 .check { margin-left: 8px; color: var(--destaque); font-weight: 700; }
