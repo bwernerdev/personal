@@ -156,3 +156,7 @@ Toda frase que as regras **não resolvem** (erro, números confusos) e toda que 
 - Só o texto da frase é guardado (máx. 300 caracteres), no **seu** Notion; nada vai para outro lugar.
 - Para ensinar as regras: peça **"inclua as frases novas"**; o fluxo e o script (`node scripts/frases.js listar`) estão em [`scripts/README.md`](../scripts/README.md).
 - Frase que reaparece depois de "incluída" volta sozinha para a lista de pendentes.
+
+## Treinos ativos e em standby
+
+Desde 2026-10 o app usa **Full body 1, 2 e 3**. Os seis treinos antigos (Peito/Tríceps … Bíceps/Tríceps) estão em *standby*: seguem no Notion (Rotina e Treinos) e no histórico, mas somem dos botões do "Treino do dia", do chat e da sugestão. A lista fica em `lib/parser.js` (`TREINOS_EM_STANDBY`); para reativar um treino, tire-o de lá. Os exercícios do Full body entraram na Rotina **sem séries e repetições** (o personal não passou); preencha no Notion quando houver. Sem rotina com Full body (arquivo de teste `data/rotina.json`), nada é escondido.

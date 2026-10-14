@@ -1,5 +1,5 @@
 import { rota } from '../lib/http.js';
-import { interpretar } from '../lib/parser.js';
+import { interpretar, rotinaDoApp } from '../lib/parser.js';
 import { hojeSP, hojeInformado } from '../lib/datas.js';
 import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase } from '../lib/store.js';
 import { jaRegistrado } from '../lib/treino-do-dia.js';
@@ -26,7 +26,7 @@ export default rota('POST', async (req) => {
   const { texto, usarRotina = false, forcar = false, hoje } = req.body || {};
   if (!texto || !String(texto).trim()) return { status: 'vazio' };
 
-  const rotina = await listarRotina();
+  const rotina = rotinaDoApp(await listarRotina()); // treinos em standby ficam de fora
   const dia = hojeInformado(hoje, hojeSP());
   const r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina) });
 

@@ -415,7 +415,7 @@ function renderDia() {
         'div',
         { class: 'cartao' },
         el('h3', {}, ex.exercicio),
-        el('div', { class: 'meta' }, `Personal: ${ex.series}×${String(ex.reps).replace('-', '–')}`),
+        el('div', { class: 'meta' }, ex.series ? `Personal: ${ex.series}×${String(ex.reps).replace("-", "–")}` : "Séries e repetições: você define"),
         ex.ultimo
           ? el('div', { class: 'ultimo' }, `Último (${data(ex.ultimo.data)}${ex.ultimo.deOutroTreino ? ', outro treino' : ''}): ${resumoDia(ex.ultimo)}`)
           : el('div', { class: 'ultimo vazio' }, 'Ainda sem registro'),
