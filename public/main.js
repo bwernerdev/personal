@@ -309,7 +309,6 @@ function desenharReceitas() {
         ),
       ),
     ]),
-    el('p', { class: 'meta' }, 'Calorias e proteína aproximadas (TACO). Confirme com a nutricionista.'),
   );
 }
 
