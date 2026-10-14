@@ -353,8 +353,8 @@ $('#form-chat').onsubmit = (e) => {
 };
 $('#entrada').addEventListener('input', ajustarEntrada);
 $('#entrada').addEventListener('keydown', (e) => {
-  // No computador, Enter envia (Shift+Enter quebra linha). No celular, Enter quebra linha.
-  if (e.key === 'Enter' && !e.shiftKey && matchMedia('(pointer: fine)').matches) {
+  // Enter envia (no celular também). Shift+Enter quebra linha. Não envia no meio de uma composição (acentos, ditado).
+  if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
     e.preventDefault();
     $('#form-chat').requestSubmit();
   }
