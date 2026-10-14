@@ -3,7 +3,7 @@ import { interpretar, rotinaDoApp } from '../lib/parser.js';
 import { hojeSP, hojeInformado } from '../lib/datas.js';
 import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase, listarMemorias, anotarMemoria, apagarMemoria } from '../lib/store.js';
 import { jaRegistrado } from '../lib/treino-do-dia.js';
-import { responderConsulta } from '../lib/consultas.js';
+import { responderConsulta, perguntaComposta } from '../lib/consultas.js';
 import { habilitado as iaDisponivel, sugerir, perguntar, pareceConsulta } from '../lib/ia.js';
 import { comandoDeMemoria, executarMemoria } from '../lib/memoria.js';
 
@@ -46,11 +46,13 @@ export default rota('POST', async (req) => {
   if (pareceConsulta(texto)) {
     const registros = await listarTreinos(5000);
     const direta = responderConsulta(texto, { registros, rotina: rotinaInteira, hoje: dia });
-    if (direta) return { status: 'resposta', origem: 'regras', mensagem: direta };
+    // Pergunta de várias partes: a IA responde tudo; as regras (que só respondem uma parte) ficam de reserva.
+    if (direta && !(perguntaComposta(texto) && iaDisponivel())) return { status: 'resposta', origem: 'regras', mensagem: direta };
     if (iaDisponivel()) {
       const resposta = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros, hoje: dia, memorias: await memoriasDaIa() });
       if (resposta) return { status: 'resposta', origem: 'ia', mensagem: resposta.mensagem };
     }
+    if (direta) return { status: 'resposta', origem: 'regras', mensagem: direta };
   }
 
   let r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina) });
