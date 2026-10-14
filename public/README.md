@@ -15,6 +15,7 @@ O app que abre no celular. É servido como está (sem build, sem framework).
 |---|---|
 | `index.html` | Estrutura: 3 abas (Chat, Treino do dia, Histórico), o aviso de nova versão e a janela do código de acesso |
 | `main.js` | Lógica das telas e chamadas à API |
+| `teclado.js` | Teclado próprio (estilo Google Keyboard) usado só em telas de toque, para o iOS não mostrar a barra ↑ ↓ ✓. Letras ao soltar o dedo; segurar abre acentos e números |
 | `styles.css` | Visual (tema escuro) |
 | `sw.js` | Service worker: abre o app sem internet e guarda a última resposta de `/api/dia` e `/api/historico` |
 | `manifest.webmanifest` | Dados de instalação (nome, ícones, tela cheia) |

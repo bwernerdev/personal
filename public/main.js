@@ -1,5 +1,6 @@
 // App do Personal: chat de registro, treino do dia e histórico.
 // Todo o acesso ao Notion passa pela API (/api/*); nenhuma chave fica aqui.
+import { iniciarTeclado } from './teclado.js';
 
 const $ = (seletor) => document.querySelector(seletor);
 
@@ -362,6 +363,8 @@ $('#form-chat').onsubmit = (e) => {
   if (texto) enviar(texto);
 };
 $('#entrada').addEventListener('input', ajustarEntrada);
+// Celular: teclado próprio (o do iOS traz a barra ↑ ↓ ✓ que a página não consegue esconder).
+if (matchMedia('(pointer: coarse)').matches) iniciarTeclado({ campo, raiz: $('#teclado'), aoEnviar: () => $('#form-chat').requestSubmit() });
 $('#entrada').addEventListener('keydown', (e) => {
   // Enter envia (no celular também). Shift+Enter quebra linha. Não envia no meio de uma composição (acentos, ditado).
   if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
