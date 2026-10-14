@@ -178,6 +178,8 @@ Com `GEMINI_API_KEY` (ou `ANTHROPIC_API_KEY`), mensagens que parecem pergunta ("
 - **🏆 Novo recorde de carga!** aparece no cartão de registro quando a carga passa de tudo que já foi registrado naquele exercício.
 - **Ditado por voz** no teclado próprio (tecla de microfone, só se o aparelho tem reconhecimento de voz). No iPhone com o app instalado o sistema pode bloquear o microfone.
 
+**Desempenho (2026-10-14):** o Notion leva ~0,5 s por chamada e cada 100 linhas são uma chamada, uma após a outra. Por isso (1) `lib/cache.js` guarda a rotina por 5 min e os registros por 30 s na memória do servidor (cada instância da Vercel tem o seu; gravar, apagar e corrigir limpam o cache, e as leituras que precisam estar em dia — antes de gravar, treino de hoje, correção — usam `fresco: true`); (2) `lib/leitura.js` lê os 1500 registros mais recentes (`LIMITE_CONSULTA` muda) e, só se o histórico for maior que isso, soma o histórico completo dos exercícios citados na pergunta (o Notion filtra direto) e avisa a IA de que o resumo é parcial; (3) a região das funções da Vercel é `iad1` (`vercel.json`), perto do Notion; se a latência piorar, volte ao padrão apagando `regions`; (4) `.github/workflows/test.yml` roda `node --test` em todo PR.
+
 **Memória da conversa:** o app guarda na tela as últimas 10 mensagens (suas e as respostas) e manda junto em `historico`; o servidor as entrega à IA como dado (`blocoDaConversa`). Some ao fechar o app e não é gravada em lugar nenhum.
 
 ### Consultas respondidas só por regras (`lib/consultas.js`)

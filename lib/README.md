@@ -18,6 +18,8 @@ Regras do projeto. É aqui que mora a lógica; `api/` e `public/` só chamam e m
 | `normalizar.js` | Tira acentos/pontuação e quebra em palavras para comparar |
 | `datas.js` | Datas no fuso de São Paulo: `hoje`, `ontem`, `seg`, `05/10` |
 | `correcao.js` | Corrigir/apagar pelo chat o que foi registrado ("apaga o último", "errei, era 45", "corrige a puxada para 40 kg", "corrige o bloco 2 ..."); regras do servidor, vai para a lixeira/atualiza no Notion |
+| `cache.js` | Cache curto na memória do servidor (`criarCache`): `store.js` guarda a rotina por 5 min e os registros por 30 s; gravar/apagar/corrigir limpa; `fresco: true` ignora |
+| `leitura.js` | Quantos registros ler para uma consulta (`LIMITE_CONSULTA`, padrão 1500): os recentes e, se o histórico for maior, o histórico completo dos exercícios citados; avisa que é parcial |
 | `estatisticas.js` | Números exatos para a IA (vezes, último, recorde, variação de carga, frequência); a IA copia em vez de contar |
 | `memoria.js` | "lembre que ...", "o que você lembra de mim?", "esqueça 2": regras do servidor; as lembranças entram no prompt da IA (ficam no banco "Frases novas" com Resultado = Memória) |
 | `treino-do-dia.js` | Monta a tela "Treino do dia" e o histórico a partir da rotina e dos treinos; decide se um registro já existe (`jaRegistrado`) |

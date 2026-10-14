@@ -1,0 +1,17 @@
+# Roda os testes (node --test) em todo PR e em todo push na main. Sem instalar nada: o projeto não tem dependências.
+name: testes
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test
