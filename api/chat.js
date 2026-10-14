@@ -3,7 +3,7 @@ import { interpretar, rotinaDoApp } from '../lib/parser.js';
 import { hojeSP, hojeInformado } from '../lib/datas.js';
 import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase } from '../lib/store.js';
 import { jaRegistrado } from '../lib/treino-do-dia.js';
-import { habilitado as iaDisponivel, sugerir } from '../lib/ia.js';
+import { habilitado as iaDisponivel, sugerir, perguntar, pareceConsulta } from '../lib/ia.js';
 
 // Guarda a frase que as regras não resolveram (para ensiná-las depois: scripts/frases.js). Nunca atrapalha
 // o chat: erro ou demora de mais (4 s) só vão para o log.
@@ -28,6 +28,12 @@ export default rota('POST', async (req) => {
 
   const rotina = rotinaDoApp(await listarRotina()); // treinos em standby ficam de fora
   const dia = hojeInformado(hoje, hojeSP());
+  // Pergunta sobre os treinos ("liste meu último full body 1"): só leitura, respondida pela IA com os dados do Notion.
+  if (iaDisponivel() && pareceConsulta(texto)) {
+    const resposta = await perguntar({ texto, rotina, registros: await listarTreinos(), hoje: dia });
+    if (resposta) return { status: 'resposta', mensagem: resposta.mensagem };
+  }
+
   const r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina) });
 
   if (!r.pronto) {

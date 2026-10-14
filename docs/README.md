@@ -160,3 +160,7 @@ Toda frase que as regras **não resolvem** (erro, números confusos) e toda que 
 ## Treinos ativos e em standby
 
 Desde 2026-10 o app usa **Full body 1, 2 e 3**. Os seis treinos antigos (Peito/Tríceps … Bíceps/Tríceps) estão em *standby*: seguem no Notion (Rotina e Treinos) e no histórico, mas somem dos botões do "Treino do dia", do chat e da sugestão. A lista fica em `lib/parser.js` (`TREINOS_EM_STANDBY`); para reativar um treino, tire-o de lá. Os exercícios do Full body entraram na Rotina **sem séries e repetições** (o personal não passou); preencha no Notion quando houver. Sem rotina com Full body (arquivo de teste `data/rotina.json`), nada é escondido.
+
+## Perguntas sobre os treinos (IA, só leitura)
+
+Com `GEMINI_API_KEY` (ou `ANTHROPIC_API_KEY`), mensagens que parecem pergunta ("liste meu último full body 1", "qual foi minha carga na puxada alta?") não passam pelo registro: o servidor lê os últimos 300 registros e a rotina ativa no Notion e a IA só redige a resposta (`perguntar` em `lib/ia.js`). A IA não recebe o token do Notion, não grava nada e só usa os dados enviados. Mensagem com "5x10" é sempre tratada como registro. Sem chave, ou se a IA falhar, a mensagem segue para as regras normais.
