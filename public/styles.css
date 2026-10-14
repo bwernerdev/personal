@@ -133,7 +133,7 @@ nav button.ativa { color: var(--destaque); font-weight: 600; }
 #enviar { background: var(--destaque); color: #0b1a10; border: 0; border-radius: 12px; padding: 0 16px; min-width: var(--toque); min-height: var(--toque); font-weight: 600; font-size: 16px; }
 #enviar:disabled { opacity: .5; }
 #entrada { min-height: var(--toque); box-sizing: border-box; }
-#entrada[data-vazio]::before { content: attr(data-placeholder); color: var(--suave, #8b93a1); pointer-events: none; }
+#entrada[data-vazio="1"]::before { content: attr(data-placeholder); color: var(--suave, #8b93a1); pointer-events: none; }
 #entrada:focus { border-color: var(--destaque); }
 
 /* treino do dia */
@@ -264,3 +264,25 @@ button.cartao.item-exercicio::after { content: "\203A"; color: var(--suave); fon
 
 /* treino do dia: lista fica levemente apagada enquanto a nova carrega */
 #lista-dia.carregando { opacity: .55; transition: opacity .15s; }
+
+/* Teclado próprio (public/teclado.js) */
+#entrada { position: relative; }
+#entrada.com-teclado { -webkit-user-select: none; user-select: none; }
+#entrada[data-vazio="1"]::before { position: absolute; left: 12px; top: 10px; }
+#entrada.com-teclado::after { content: ''; display: inline-block; width: 2px; height: 1.1em; margin-left: 1px; vertical-align: text-bottom; background: var(--destaque); animation: pisca 1s steps(1) infinite; }
+@keyframes pisca { 50% { opacity: 0; } }
+#teclado { flex: none; display: flex; flex-direction: column; gap: 8px; padding: 8px 3px 10px; margin: 0 calc(var(--margem) * -1); background: #1c1d20; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+#teclado[hidden] { display: none; }
+.tec-linha { display: flex; gap: 6px; }
+.tec-linha.recuo { padding: 0 5%; }
+.tec-tecla { min-width: 0; height: 50px; padding: 0; border: 0; border-radius: 8px; background: #3b3d42; color: #e8eaed; font-size: 22px; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+.tec-tecla svg { width: 24px; height: 24px; fill: currentColor; }
+.tec-tecla.shift, .tec-tecla.apagar, .tec-tecla.camada { background: #2b2d31; font-size: 15px; }
+.tec-tecla.espaco { font-size: 14px; color: #9aa0a6; }
+.tec-tecla.enter { background: var(--destaque); color: #0b1a10; border-radius: 24px; }
+.tec-tecla.shift.ligada { background: #4a4d54; color: var(--destaque); }
+.tec-tecla.pressionada { background: #55585f; opacity: 1; }
+.tec-tecla.enter.pressionada { filter: brightness(1.15); background: var(--destaque); }
+.tec-balao { position: fixed; z-index: 50; display: flex; background: #4a4d54; border-radius: 10px; padding: 4px; box-shadow: 0 4px 14px #0008; pointer-events: none; }
+.tec-balao span { flex: 1; text-align: center; font-size: 26px; line-height: 52px; border-radius: 8px; color: #fff; }
+.tec-balao span.marcada { background: var(--destaque); color: #0b1a10; }
