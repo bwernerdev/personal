@@ -176,3 +176,5 @@ O interpretador junta "full body 2", "full 2", "fullbody2", "fb2", "full body do
 ### Mais jeitos aceitos (rodada de lapidação)
 
 Registro: `/` separa exercícios ("supino 24 4x10 / puxada 50 4x12"); "dia 12/10 full 2 ..."; observação entre parênteses vira a coluna Observações ("supino 24 5x10 (dor no ombro)"); rotina sem séries/reps pergunta "Quantas séries e repetições?". Consultas: "qual o próximo treino?", "quais exercícios tem no full body 2?", "quanto tempo desde o último treino?", "qual foi meu último treino?", "liste as últimas 3 vezes da puxada", e nome parcial de exercício quando só um combina ("puxada").
+
+Mais: uma carga e as reps de cada série ("remada baixa 40kg 12 12 10" = 40x12, 40x12, 40x10; precisa de 3+ séries para não confundir com "24 5 10"); exercício que existe em mais de um treino usa o treino que você já registrou hoje (se não houver, pergunta); "ombro" dentro do nome ("desenvolvimento de ombro máquina") não é tratado como treino.

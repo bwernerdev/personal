@@ -42,7 +42,12 @@ export default rota('POST', async (req) => {
     }
   }
 
-  const r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina) });
+  let r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina) });
+  if (r.pendentes.some((p) => p.tipo === 'ambiguo_treino')) {
+    // "puxada alta 50 4x12" existe em mais de um treino: se hoje já foi registrado um deles, é esse.
+    const treinoDeHoje = (await listarTreinos()).find((t) => t.data === dia && rotina.some((x) => x.treino === t.treino))?.treino;
+    if (treinoDeHoje) r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina), treinoDeHoje });
+  }
 
   if (!r.pronto) {
     // Pergunta de falta de carga/séries e dúvida entre exercícios são das regras; a IA só ajuda
