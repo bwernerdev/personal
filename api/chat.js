@@ -66,6 +66,14 @@ export default rota('POST', async (req) => {
       resultado = 'IA não entendeu';
       if (ajuda?.tipo === 'nao_entendi') {
         resposta = { ...resposta, ajuda: ajuda.mensagem };
+        // Nem as regras nem a reescrita entenderam e nada foi registrado: não é um treino, a IA responde livremente.
+        if (r.registros.length === 0 && !r.pendentes.some((p) => p.tipo === 'confuso')) {
+          const livre = await perguntar({ texto, rotina: rotinaInteira, registros: await listarTreinos(5000), hoje: dia });
+          if (livre) {
+            await anotarFraseNova({ frase: texto, resultado: 'IA respondeu livremente', motivo, sugestao: null, hoje: dia });
+            return { status: 'resposta', origem: 'ia', mensagem: livre.mensagem };
+          }
+        }
       } else if (ajuda?.tipo === 'texto') {
         const novo = interpretar(ajuda.texto, { rotina, hoje: dia });
         // Serve reescrita sem erro que já tem registros OU só perguntas das regras (ex.: falta a carga).
