@@ -34,12 +34,15 @@ function el(tag, props = {}, ...filhos) {
 // ---------- formatação ----------
 
 const num = (n) => String(n).replace('.', ',');
+const DIAS_SEMANA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 const data = (iso) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : '');
+const dataComDia = (iso) => (iso ? `${data(iso)}, ${DIAS_SEMANA[new Date(`${iso}T12:00:00Z`).getUTCDay()]}` : '');
+// Mesmo formato das respostas do chat: "4×12 · 50 kg".
 function resumo(r) {
   const partes = [];
-  if (r.carga !== null && r.carga !== undefined) partes.push(`${num(r.carga)} kg`);
   if (r.series !== null && r.series !== undefined) partes.push(`${r.series}×${r.reps ?? '—'}`);
-  if (r.obs) partes.push(r.obs);
+  if (r.carga !== null && r.carga !== undefined) partes.push(`${num(r.carga)} kg`);
+  if (r.obs && !/^bloco \d+\/\d+$/.test(r.obs)) partes.push(r.obs); // "bloco 1/2" é só a ordem das cargas
   return partes.join(' · ') || 'sem detalhes';
 }
 // Um dia de treino pode ter várias linhas (cargas diferentes por série): mostra todas.
@@ -418,7 +421,7 @@ function renderDia() {
         el('h3', {}, ex.exercicio),
         el('div', { class: 'meta' }, ex.series ? `Personal: ${ex.series}×${String(ex.reps).replace("-", "–")}` : "Séries e repetições: você define"),
         ex.ultimo
-          ? el('div', { class: 'ultimo' }, `Último (${data(ex.ultimo.data)}${ex.ultimo.deOutroTreino ? ', outro treino' : ''}): ${resumoDia(ex.ultimo)}`)
+          ? el('div', { class: 'ultimo' }, `Último (${dataComDia(ex.ultimo.data)}${ex.ultimo.deOutroTreino ? ', outro treino' : ''}): ${resumoDia(ex.ultimo)}`)
           : el('div', { class: 'ultimo vazio' }, 'Ainda sem registro'),
         el('button', { onclick: () => irParaHistorico(ex.exercicio) }, 'Ver histórico'),
       ),
