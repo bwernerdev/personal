@@ -1,9 +1,10 @@
 import { rota } from '../lib/http.js';
-import { interpretar } from '../lib/parser.js';
+import { interpretar, rotinaDoApp } from '../lib/parser.js';
 import { hojeSP, hojeInformado } from '../lib/datas.js';
 import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase } from '../lib/store.js';
 import { jaRegistrado } from '../lib/treino-do-dia.js';
-import { habilitado as iaDisponivel, sugerir } from '../lib/ia.js';
+import { responderConsulta } from '../lib/consultas.js';
+import { habilitado as iaDisponivel, sugerir, perguntar, pareceConsulta } from '../lib/ia.js';
 
 // Guarda a frase que as regras não resolveram (para ensiná-las depois: scripts/frases.js). Nunca atrapalha
 // o chat: erro ou demora de mais (4 s) só vão para o log.
@@ -26,9 +27,27 @@ export default rota('POST', async (req) => {
   const { texto, usarRotina = false, forcar = false, hoje } = req.body || {};
   if (!texto || !String(texto).trim()) return { status: 'vazio' };
 
-  const rotina = await listarRotina();
+  const rotinaInteira = await listarRotina();
+  const rotina = rotinaDoApp(rotinaInteira); // treinos em standby ficam de fora do registro
   const dia = hojeInformado(hoje, hojeSP());
-  const r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina) });
+  // Pergunta sobre os treinos ("liste meu último full body 1"): só leitura. As regras respondem as comuns na hora;
+  // as outras vão para a IA (se houver chave) com os dados do Notion.
+  if (pareceConsulta(texto)) {
+    const registros = await listarTreinos(5000);
+    const direta = responderConsulta(texto, { registros, rotina: rotinaInteira, hoje: dia });
+    if (direta) return { status: 'resposta', origem: 'regras', mensagem: direta };
+    if (iaDisponivel()) {
+      const resposta = await perguntar({ texto, rotina: rotinaInteira, registros, hoje: dia });
+      if (resposta) return { status: 'resposta', origem: 'ia', mensagem: resposta.mensagem };
+    }
+  }
+
+  let r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina) });
+  if (r.pendentes.some((p) => p.tipo === 'ambiguo_treino')) {
+    // "puxada alta 50 4x12" existe em mais de um treino: se hoje já foi registrado um deles, é esse.
+    const treinoDeHoje = (await listarTreinos()).find((t) => t.data === dia && rotina.some((x) => x.treino === t.treino))?.treino;
+    if (treinoDeHoje) r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina), treinoDeHoje });
+  }
 
   if (!r.pronto) {
     // Pergunta de falta de carga/séries e dúvida entre exercícios são das regras; a IA só ajuda

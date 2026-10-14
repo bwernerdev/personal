@@ -260,6 +260,7 @@ function tratarResposta(resp, texto, usarRotina, titulo) {
     return true;
   }
   if (resp.status === 'precisa_resposta') mostrarPerguntas(resp, texto);
+  else if (resp.status === 'resposta') bolha('', el('h3', {}, resp.origem === 'ia' ? 'Resposta da IA' : 'Seu histórico'), resp.mensagem);
   else if (resp.status === 'sugestao') mostrarSugestao(resp);
   else if (resp.status === 'duplicado') mostrarDuplicado(resp, texto, usarRotina);
   else if (resp.status === 'erro_parcial') {
@@ -415,7 +416,7 @@ function renderDia() {
         'div',
         { class: 'cartao' },
         el('h3', {}, ex.exercicio),
-        el('div', { class: 'meta' }, `Personal: ${ex.series}×${String(ex.reps).replace('-', '–')}`),
+        el('div', { class: 'meta' }, ex.series ? `Personal: ${ex.series}×${String(ex.reps).replace("-", "–")}` : "Séries e repetições: você define"),
         ex.ultimo
           ? el('div', { class: 'ultimo' }, `Último (${data(ex.ultimo.data)}${ex.ultimo.deOutroTreino ? ', outro treino' : ''}): ${resumoDia(ex.ultimo)}`)
           : el('div', { class: 'ultimo vazio' }, 'Ainda sem registro'),
