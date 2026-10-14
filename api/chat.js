@@ -26,11 +26,12 @@ export default rota('POST', async (req) => {
   const { texto, usarRotina = false, forcar = false, hoje } = req.body || {};
   if (!texto || !String(texto).trim()) return { status: 'vazio' };
 
-  const rotina = rotinaDoApp(await listarRotina()); // treinos em standby ficam de fora
+  const rotinaInteira = await listarRotina();
+  const rotina = rotinaDoApp(rotinaInteira); // treinos em standby ficam de fora do registro
   const dia = hojeInformado(hoje, hojeSP());
   // Pergunta sobre os treinos ("liste meu último full body 1"): só leitura, respondida pela IA com os dados do Notion.
   if (iaDisponivel() && pareceConsulta(texto)) {
-    const resposta = await perguntar({ texto, rotina, registros: await listarTreinos(), hoje: dia });
+    const resposta = await perguntar({ texto, rotina: rotinaInteira, registros: await listarTreinos(5000), hoje: dia });
     if (resposta) return { status: 'resposta', mensagem: resposta.mensagem };
   }
 
