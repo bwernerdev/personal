@@ -4,7 +4,7 @@ import { hojeSP, hojeInformado } from '../lib/datas.js';
 import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase, listarMemorias, anotarMemoria, apagarMemoria, apagarTreino, atualizarTreino, listarTreinosDoExercicio } from '../lib/store.js';
 import { jaRegistrado } from '../lib/treino-do-dia.js';
 import { responderConsulta, perguntaComposta, completarComContexto } from '../lib/consultas.js';
-import { habilitado as iaDisponivel, sugerir, perguntar, pareceConsulta } from '../lib/ia.js';
+import { habilitado as iaDisponivel, sugerir, perguntar, pareceConsulta, PEDE_SUGESTAO } from '../lib/ia.js';
 import { comandoDeMemoria, executarMemoria } from '../lib/memoria.js';
 import { comandoDeCorrecao, executarCorrecao } from '../lib/correcao.js';
 
@@ -54,7 +54,9 @@ export default rota('POST', async (req) => {
   const contextual = completarComContexto(texto, historico);
   if (contextual || pareceConsulta(texto)) {
     const registros = await listarTreinos(5000);
-    const direta = responderConsulta(contextual ?? texto, { registros, rotina: rotinaInteira, hoje: dia });
+    // Pedido de sugestão de carga não é consulta de histórico: vai direto para a IA (as regras só mostrariam o último treino).
+    const pedeSugestao = PEDE_SUGESTAO.test(String(texto).normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase());
+    const direta = pedeSugestao && iaDisponivel() ? null : responderConsulta(contextual ?? texto, { registros, rotina: rotinaInteira, hoje: dia });
     // Pergunta de várias partes: a IA responde tudo; as regras (que só respondem uma parte) ficam de reserva.
     if (direta && !(perguntaComposta(texto) && iaDisponivel())) return { status: 'resposta', origem: 'regras', mensagem: direta };
     if (iaDisponivel()) {
