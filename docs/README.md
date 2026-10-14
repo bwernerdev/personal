@@ -172,3 +172,7 @@ Antes de chamar a IA, o chat tenta responder na hora, sem chave: "liste meu últ
 ### Frases com Full body
 
 O interpretador junta "full body 2", "full 2", "fullbody2", "fb2", "full body dois" em `full2` (também vale `f2`); o treino pode vir no começo, no meio ("... no full 2") ou depois de "fiz o full body 3 hoje,". Vários exercícios sem vírgula também funcionam: "puxada 45 4x10 extensora 40 3x15" (cada "NxM" fecha o item). Testes: `lib/full-body.test.js`.
+
+### Mais jeitos aceitos (rodada de lapidação)
+
+Registro: `/` separa exercícios ("supino 24 4x10 / puxada 50 4x12"); "dia 12/10 full 2 ..."; observação entre parênteses vira a coluna Observações ("supino 24 5x10 (dor no ombro)"); rotina sem séries/reps pergunta "Quantas séries e repetições?". Consultas: "qual o próximo treino?", "quais exercícios tem no full body 2?", "quanto tempo desde o último treino?", "qual foi meu último treino?", "liste as últimas 3 vezes da puxada", e nome parcial de exercício quando só um combina ("puxada").
