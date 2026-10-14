@@ -253,8 +253,3 @@ button.cartao.item-exercicio::after { content: "\203A"; color: var(--suave); fon
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-
-/* iPhone instalado com janela menor que a tela: main.js define --altura (ver lá) */
-@supports (-webkit-touch-callout: none) {
-  body { height: var(--altura, auto); bottom: auto; }
-}
