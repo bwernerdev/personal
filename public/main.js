@@ -286,7 +286,8 @@ async function enviar(texto, usarRotina = false, rotuloUsuario = null, { forcar 
     const resp = await chamar('/api/chat', { method: 'POST', body: JSON.stringify({ texto, usarRotina, forcar, hoje }) });
     clearTimeout(espera);
     pensando?.remove();
-    if (tratarResposta(resp, texto, usarRotina)) {
+    // No celular (teclado próprio, sem cursor para editar) o campo sempre esvazia; o texto enviado fica na bolha.
+    if (tratarResposta(resp, texto, usarRotina) || $('#entrada').classList.contains('com-teclado')) {
       $('#entrada').value = '';
       ajustarEntrada();
     }
