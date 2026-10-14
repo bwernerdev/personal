@@ -129,9 +129,14 @@ const estado = { dia: null, diaSelecionado: null };
 // ---------- guia de exercícios ----------
 
 let guiasCarregados = null;
+let urlImagens = '';
 
 async function abrirGuia() {
-  if (!guiasCarregados) guiasCarregados = (await import('./guias.js')).GUIAS;
+  if (!guiasCarregados) {
+    const m = await import('./guias.js');
+    guiasCarregados = m.GUIAS;
+    urlImagens = m.URL_IMAGENS;
+  }
   desenharGuia();
 }
 
@@ -186,7 +191,17 @@ function cartaoGuia(nome, g) {
   video.target = '_blank';
   video.rel = 'noopener noreferrer';
   video.textContent = 'Ver vídeos no YouTube';
-  d.append(r, musculos, passos, dica, erro, video);
+  const fotos = document.createElement('div');
+  fotos.className = 'fotos-guia';
+  for (const [i, legenda] of ['Início', 'Fim'].entries()) {
+    const img = document.createElement('img');
+    img.src = `${urlImagens}${g.imagem}/${i}.jpg`;
+    img.alt = `${nome}: ${legenda.toLowerCase()} do movimento`;
+    img.loading = 'lazy';
+    img.onerror = () => img.remove();
+    fotos.append(img);
+  }
+  d.append(r, fotos, musculos, passos, dica, erro, video);
   return d;
 }
 
