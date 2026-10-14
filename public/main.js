@@ -105,7 +105,7 @@ async function chamar(caminho, opcoes = {}) {
 
 // ---------- abas ----------
 
-const TITULOS = { chat: 'Chat', dia: 'Treino do dia', historico: 'Histórico' };
+const TITULOS = { chat: 'Chat', dia: 'Treino do dia', historico: 'Histórico', guia: 'Exercícios' };
 let abaAtual = 'chat';
 
 function abrirAba(nome) {
@@ -119,11 +119,93 @@ function abrirAba(nome) {
   $('#titulo').textContent = TITULOS[nome];
   if (nome === 'dia') carregarDia(estado.diaSelecionado);
   if (nome === 'historico') prepararHistorico();
+  if (nome === 'guia') abrirGuia();
 }
 
 document.querySelectorAll('nav button').forEach((b) => (b.onclick = () => abrirAba(b.dataset.aba)));
 
 const estado = { dia: null, diaSelecionado: null };
+
+// ---------- guia de exercícios ----------
+
+let guiasCarregados = null;
+let urlImagens = '';
+
+async function abrirGuia() {
+  if (!guiasCarregados) {
+    const m = await import('./guias.js');
+    guiasCarregados = m.GUIAS;
+    urlImagens = m.URL_IMAGENS;
+  }
+  desenharGuia();
+}
+
+function desenharGuia() {
+  const sem = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const busca = sem($('#busca-guia').value.trim());
+  const lista = $('#lista-guia');
+  lista.textContent = '';
+  const porGrupo = new Map();
+  for (const [nome, g] of Object.entries(guiasCarregados)) {
+    if (busca && !sem(`${nome} ${g.grupo} ${g.musculos}`).includes(busca)) continue;
+    if (!porGrupo.has(g.grupo)) porGrupo.set(g.grupo, []);
+    porGrupo.get(g.grupo).push([nome, g]);
+  }
+  if (!porGrupo.size) {
+    const vazio = document.createElement('p');
+    vazio.className = 'vazio';
+    vazio.textContent = 'Nenhum exercício encontrado.';
+    lista.append(vazio);
+    return;
+  }
+  for (const [grupo, itens] of porGrupo) {
+    const titulo = document.createElement('h3');
+    titulo.className = 'grupo-guia';
+    titulo.textContent = grupo;
+    lista.append(titulo);
+    for (const [nome, g] of itens) lista.append(cartaoGuia(nome, g));
+  }
+}
+
+function cartaoGuia(nome, g) {
+  const d = document.createElement('details');
+  d.className = 'cartao guia';
+  const r = document.createElement('summary');
+  r.textContent = nome;
+  const musculos = document.createElement('p');
+  musculos.className = 'meta';
+  musculos.textContent = `Trabalha: ${g.musculos}`;
+  const passos = document.createElement('ol');
+  for (const p of g.passos) {
+    const li = document.createElement('li');
+    li.textContent = p;
+    passos.append(li);
+  }
+  const dica = document.createElement('p');
+  dica.textContent = `Dica: ${g.dica}`;
+  const erro = document.createElement('p');
+  erro.className = 'erro-guia';
+  erro.textContent = `Evite: ${g.erro}`;
+  const video = document.createElement('a');
+  video.href = `https://www.youtube.com/results?search_query=${encodeURIComponent(`como fazer ${nome} execução correta`)}`;
+  video.target = '_blank';
+  video.rel = 'noopener noreferrer';
+  video.textContent = 'Ver vídeos no YouTube';
+  const fotos = document.createElement('div');
+  fotos.className = 'fotos-guia';
+  for (const [i, legenda] of ['Início', 'Fim'].entries()) {
+    const img = document.createElement('img');
+    img.src = `${urlImagens}${g.imagem}/${i}.jpg`;
+    img.alt = `${nome}: ${legenda.toLowerCase()} do movimento`;
+    img.loading = 'lazy';
+    img.onerror = () => img.remove();
+    fotos.append(img);
+  }
+  d.append(r, fotos, musculos, passos, dica, erro, video);
+  return d;
+}
+
+$('#busca-guia').addEventListener('input', () => guiasCarregados && desenharGuia());
 
 // ---------- chat ----------
 

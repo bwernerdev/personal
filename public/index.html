@@ -45,12 +45,18 @@
       <select id="seletor-exercicio" aria-label="Exercício"></select>
       <div id="lista-historico"></div>
     </section>
+
+    <section id="aba-guia" class="aba">
+      <input id="busca-guia" type="search" placeholder="Buscar exercício" aria-label="Buscar exercício" autocomplete="off" autocapitalize="none" spellcheck="false">
+      <div id="lista-guia"></div>
+    </section>
   </main>
 
   <nav aria-label="Seções do app">
     <button data-aba="chat" class="ativa">Chat</button>
     <button data-aba="dia">Treino do dia</button>
     <button data-aba="historico">Histórico</button>
+    <button data-aba="guia">Exercícios</button>
   </nav>
 
   <div id="acesso" hidden>
