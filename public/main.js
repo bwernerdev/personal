@@ -260,7 +260,7 @@ function tratarResposta(resp, texto, usarRotina, titulo) {
     return true;
   }
   if (resp.status === 'precisa_resposta') mostrarPerguntas(resp, texto);
-  else if (resp.status === 'resposta') bolha('', el('h3', {}, 'Resposta da IA'), resp.mensagem);
+  else if (resp.status === 'resposta') bolha('', el('h3', {}, resp.origem === 'ia' ? 'Resposta da IA' : 'Seu histórico'), resp.mensagem);
   else if (resp.status === 'sugestao') mostrarSugestao(resp);
   else if (resp.status === 'duplicado') mostrarDuplicado(resp, texto, usarRotina);
   else if (resp.status === 'erro_parcial') {

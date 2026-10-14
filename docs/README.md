@@ -164,3 +164,11 @@ Desde 2026-10 o app usa **Full body 1, 2 e 3**. Os seis treinos antigos (Peito/T
 ## Perguntas sobre os treinos (IA, só leitura)
 
 Com `GEMINI_API_KEY` (ou `ANTHROPIC_API_KEY`), mensagens que parecem pergunta ("liste meu último full body 1", "qual foi minha carga na puxada alta?") não passam pelo registro: o servidor lê os registros que combinam com a pergunta (todo o histórico do treino ou exercício citado, inclusive treinos em standby, mais os 30 mais recentes; sem treino/exercício citado, os 300 mais recentes) e a rotina inteira, e a IA só redige a resposta (`perguntar` em `lib/ia.js`). A IA não recebe o token do Notion, não grava nada e só usa os dados enviados. Mensagem com "5x10" é sempre tratada como registro. Sem chave, ou se a IA falhar, a mensagem segue para as regras normais.
+
+### Consultas respondidas só por regras (`lib/consultas.js`)
+
+Antes de chamar a IA, o chat tenta responder na hora, sem chave: "liste meu último full body 1", "qual foi minha última puxada alta?", "maior carga no voador", "quando fiz extensora?", "o que fiz ontem?", "histórico do supino inclinado". O que não for reconhecido vai para a IA (se houver chave).
+
+### Frases com Full body
+
+O interpretador junta "full body 2", "full 2", "fullbody2", "fb2", "full body dois" em `full2` (também vale `f2`); o treino pode vir no começo, no meio ("... no full 2") ou depois de "fiz o full body 3 hoje,". Vários exercícios sem vírgula também funcionam: "puxada 45 4x10 extensora 40 3x15" (cada "NxM" fecha o item). Testes: `lib/full-body.test.js`.

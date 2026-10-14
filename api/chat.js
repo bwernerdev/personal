@@ -3,6 +3,7 @@ import { interpretar, rotinaDoApp } from '../lib/parser.js';
 import { hojeSP, hojeInformado } from '../lib/datas.js';
 import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase } from '../lib/store.js';
 import { jaRegistrado } from '../lib/treino-do-dia.js';
+import { responderConsulta } from '../lib/consultas.js';
 import { habilitado as iaDisponivel, sugerir, perguntar, pareceConsulta } from '../lib/ia.js';
 
 // Guarda a frase que as regras não resolveram (para ensiná-las depois: scripts/frases.js). Nunca atrapalha
@@ -29,10 +30,16 @@ export default rota('POST', async (req) => {
   const rotinaInteira = await listarRotina();
   const rotina = rotinaDoApp(rotinaInteira); // treinos em standby ficam de fora do registro
   const dia = hojeInformado(hoje, hojeSP());
-  // Pergunta sobre os treinos ("liste meu último full body 1"): só leitura, respondida pela IA com os dados do Notion.
-  if (iaDisponivel() && pareceConsulta(texto)) {
-    const resposta = await perguntar({ texto, rotina: rotinaInteira, registros: await listarTreinos(5000), hoje: dia });
-    if (resposta) return { status: 'resposta', mensagem: resposta.mensagem };
+  // Pergunta sobre os treinos ("liste meu último full body 1"): só leitura. As regras respondem as comuns na hora;
+  // as outras vão para a IA (se houver chave) com os dados do Notion.
+  if (pareceConsulta(texto)) {
+    const registros = await listarTreinos(5000);
+    const direta = responderConsulta(texto, { registros, rotina: rotinaInteira, hoje: dia });
+    if (direta) return { status: 'resposta', origem: 'regras', mensagem: direta };
+    if (iaDisponivel()) {
+      const resposta = await perguntar({ texto, rotina: rotinaInteira, registros, hoje: dia });
+      if (resposta) return { status: 'resposta', origem: 'ia', mensagem: resposta.mensagem };
+    }
   }
 
   const r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina) });
