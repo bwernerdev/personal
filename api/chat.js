@@ -1,11 +1,12 @@
 import { rota } from '../lib/http.js';
 import { interpretar, rotinaDoApp } from '../lib/parser.js';
 import { hojeSP, hojeInformado } from '../lib/datas.js';
-import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase, listarMemorias, anotarMemoria, apagarMemoria } from '../lib/store.js';
+import { listarRotina, listarTreinos, registrarTreino, ultimoDoExercicio, anotarFrase, listarMemorias, anotarMemoria, apagarMemoria, apagarTreino, atualizarTreino, listarTreinosDoExercicio } from '../lib/store.js';
 import { jaRegistrado } from '../lib/treino-do-dia.js';
-import { responderConsulta, perguntaComposta } from '../lib/consultas.js';
+import { responderConsulta, perguntaComposta, completarComContexto } from '../lib/consultas.js';
 import { habilitado as iaDisponivel, sugerir, perguntar, pareceConsulta } from '../lib/ia.js';
 import { comandoDeMemoria, executarMemoria } from '../lib/memoria.js';
+import { comandoDeCorrecao, executarCorrecao } from '../lib/correcao.js';
 
 // Guarda a frase que as regras não resolveram (para ensiná-las depois: scripts/frases.js). Nunca atrapalha
 // o chat: erro ou demora de mais (4 s) só vão para o log.
@@ -39,13 +40,21 @@ export default rota('POST', async (req) => {
   const memoriasDaIa = () => listarMemorias().then((l) => l.map((m) => m.nota), () => []);
 
   const rotinaInteira = await listarRotina();
+  // "apaga o último", "errei, era 45", "corrige a puxada para 40": mexe no que já foi registrado (lixeira do Notion).
+  const correcao = comandoDeCorrecao(texto, [...new Set(rotinaInteira.map((r) => r.exercicio))]);
+  if (correcao) {
+    const mensagem = await executarCorrecao(correcao, await listarTreinos(300), { apagar: apagarTreino, atualizar: atualizarTreino });
+    return { status: 'resposta', origem: 'regras', mensagem };
+  }
   const rotina = rotinaDoApp(rotinaInteira); // treinos em standby ficam de fora do registro
   const dia = hojeInformado(hoje, hojeSP());
   // Pergunta sobre os treinos ("liste meu último full body 1"): só leitura. As regras respondem as comuns na hora;
   // as outras vão para a IA (se houver chave) com os dados do Notion.
-  if (pareceConsulta(texto)) {
+  // "e o voador?" depois de "qual meu recorde no supino?": as regras completam a pergunta com a anterior.
+  const contextual = completarComContexto(texto, historico);
+  if (contextual || pareceConsulta(texto)) {
     const registros = await listarTreinos(5000);
-    const direta = responderConsulta(texto, { registros, rotina: rotinaInteira, hoje: dia });
+    const direta = responderConsulta(contextual ?? texto, { registros, rotina: rotinaInteira, hoje: dia });
     // Pergunta de várias partes: a IA responde tudo; as regras (que só respondem uma parte) ficam de reserva.
     if (direta && !(perguntaComposta(texto) && iaDisponivel())) return { status: 'resposta', origem: 'regras', mensagem: direta };
     if (iaDisponivel()) {
@@ -118,13 +127,22 @@ export default rota('POST', async (req) => {
   }
 
   const anteriores = new Map(); // um por exercício+treino (vários blocos dividem o mesmo "antes")
+  // Carga maior que qualquer uma já registrada naquele exercício (confere o histórico inteiro se a janela recente não bastar).
+  const ehRecorde = async (recentes, reg, id) => {
+    if (reg.carga == null || reg.carga <= 0) return false;
+    const maior = (lista) => Math.max(0, ...lista.filter((t) => t.exercicio === reg.exercicio && t.carga != null).map((t) => t.carga));
+    if (reg.carga <= maior(recentes)) return false;
+    const todos = (await listarTreinosDoExercicio(reg.exercicio, 200)).filter((t) => t.id !== id); // sem o que acabou de ser gravado
+    return todos.length > 0 && reg.carga > maior(todos);
+  };
+
   const salvos = [];
   for (const reg of r.registros) {
     try {
       const chave = `${reg.exercicio}|${reg.treino}`;
       if (!anteriores.has(chave)) anteriores.set(chave, await ultimoDoExercicio(antes, reg.exercicio, reg.treino));
       const id = await registrarTreino(reg);
-      salvos.push({ ...reg, id, anterior: anteriores.get(chave) });
+      salvos.push({ ...reg, id, anterior: anteriores.get(chave), recorde: await ehRecorde(antes, reg, id) });
     } catch (e) {
       return {
         status: 'erro_parcial',

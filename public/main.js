@@ -161,6 +161,7 @@ function mostrarRegistrados(registros, titulo = 'Registrado ✓') {
   }
   for (const g of grupos) {
     cartao.append(el('div', { class: 'linha' }, `${g.exercicio}: ${g.linhas.map(resumo).join(' + ')}`));
+    if (g.linhas.some((r) => r.recorde)) cartao.append(el('div', { class: 'recorde' }, '🏆 Novo recorde de carga!'));
     const ant = g.anterior;
     cartao.append(
       el(
