@@ -49,6 +49,14 @@ export default rota('POST', async (req) => {
     if (treinoDeHoje) r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina), treinoDeHoje });
   }
 
+  // Conversa que as regras confundiram com um exercício: sem nenhum número e com 4+ palavras ignoradas
+  // ("me explica por que se faz drop set" -> "Mesa flexora?"). Não é treino: a IA responde.
+  const palavrasIgnoradas = (p) => (/ignorei: ([^)]*)\)/.exec(p.mensagem || '')?.[1].split(',').length ?? 0);
+  if (!r.pronto && r.registros.length === 0 && !/\d/.test(texto) && iaDisponivel() && r.pendentes.some((p) => p.tipo === 'confirmar_exercicio' && palavrasIgnoradas(p) >= 4)) {
+    const livre = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros: await listarTreinos(5000), hoje: dia });
+    if (livre) return { status: 'resposta', origem: 'ia', mensagem: livre.mensagem };
+  }
+
   if (!r.pronto) {
     // Pergunta de falta de carga/séries e dúvida entre exercícios são das regras; a IA só ajuda
     // quando o texto não foi entendido (erro) ou os números estão confusos.
