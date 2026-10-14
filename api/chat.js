@@ -7,6 +7,7 @@ import { responderConsulta, perguntaComposta, completarComContexto } from '../li
 import { habilitado as iaDisponivel, sugerir, perguntar, pareceConsulta, PEDE_SUGESTAO } from '../lib/ia.js';
 import { comandoDeMemoria, executarMemoria } from '../lib/memoria.js';
 import { comandoDeCorrecao, executarCorrecao } from '../lib/correcao.js';
+import { registrosParaConsulta } from '../lib/leitura.js';
 
 // Guarda a frase que as regras não resolveram (para ensiná-las depois: scripts/frases.js). Nunca atrapalha
 // o chat: erro ou demora de mais (4 s) só vão para o log.
@@ -37,13 +38,15 @@ export default rota('POST', async (req) => {
     return { status: 'resposta', origem: 'regras', mensagem };
   }
   // Lembranças que a pessoa pediu para a IA guardar; se o Notion falhar, a IA responde sem elas.
+  // Registros para consulta/conversa: os recentes (cache de 30 s) e, se o histórico for grande, o dos exercícios citados.
+  const lerParaConsulta = async (pergunta) => registrosParaConsulta({ texto: pergunta, rotina: rotinaInteira, listarTreinos, listarTreinosDoExercicio });
   const memoriasDaIa = () => listarMemorias().then((l) => l.map((m) => m.nota), () => []);
 
   const rotinaInteira = await listarRotina();
   // "apaga o último", "errei, era 45", "corrige a puxada para 40": mexe no que já foi registrado (lixeira do Notion).
   const correcao = comandoDeCorrecao(texto, [...new Set(rotinaInteira.map((r) => r.exercicio))]);
   if (correcao) {
-    const mensagem = await executarCorrecao(correcao, await listarTreinos(300), { apagar: apagarTreino, atualizar: atualizarTreino });
+    const mensagem = await executarCorrecao(correcao, await listarTreinos(300, { fresco: true }), { apagar: apagarTreino, atualizar: atualizarTreino });
     return { status: 'resposta', origem: 'regras', mensagem };
   }
   const rotina = rotinaDoApp(rotinaInteira); // treinos em standby ficam de fora do registro
@@ -53,14 +56,14 @@ export default rota('POST', async (req) => {
   // "e o voador?" depois de "qual meu recorde no supino?": as regras completam a pergunta com a anterior.
   const contextual = completarComContexto(texto, historico);
   if (contextual || pareceConsulta(texto)) {
-    const registros = await listarTreinos(5000);
+    const { registros, parcial } = await lerParaConsulta(texto);
     // Pedido de sugestão de carga não é consulta de histórico: vai direto para a IA (as regras só mostrariam o último treino).
     const pedeSugestao = PEDE_SUGESTAO.test(String(texto).normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase());
     const direta = pedeSugestao && iaDisponivel() ? null : responderConsulta(contextual ?? texto, { registros, rotina: rotinaInteira, hoje: dia });
     // Pergunta de várias partes: a IA responde tudo; as regras (que só respondem uma parte) ficam de reserva.
     if (direta && !(perguntaComposta(texto) && iaDisponivel())) return { status: 'resposta', origem: 'regras', mensagem: direta };
     if (iaDisponivel()) {
-      const resposta = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros, hoje: dia, memorias: await memoriasDaIa() });
+      const resposta = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros, parcial, hoje: dia, memorias: await memoriasDaIa() });
       if (resposta) return { status: 'resposta', origem: 'ia', mensagem: resposta.mensagem };
     }
     if (direta) return { status: 'resposta', origem: 'regras', mensagem: direta };
@@ -69,7 +72,7 @@ export default rota('POST', async (req) => {
   let r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina) });
   if (r.pendentes.some((p) => p.tipo === 'ambiguo_treino')) {
     // "puxada alta 50 4x12" existe em mais de um treino: se hoje já foi registrado um deles, é esse.
-    const treinoDeHoje = (await listarTreinos()).find((t) => t.data === dia && rotina.some((x) => x.treino === t.treino))?.treino;
+    const treinoDeHoje = (await listarTreinos(undefined, { fresco: true })).find((t) => t.data === dia && rotina.some((x) => x.treino === t.treino))?.treino;
     if (treinoDeHoje) r = interpretar(texto, { rotina, hoje: dia, usarRotina: Boolean(usarRotina), treinoDeHoje });
   }
 
@@ -77,7 +80,7 @@ export default rota('POST', async (req) => {
   // ("me explica por que se faz drop set" -> "Mesa flexora?"). Não é treino: a IA responde.
   const palavrasIgnoradas = (p) => (/ignorei: ([^)]*)\)/.exec(p.mensagem || '')?.[1].split(',').length ?? 0);
   if (!r.pronto && r.registros.length === 0 && !/\d/.test(texto) && iaDisponivel() && r.pendentes.some((p) => p.tipo === 'confirmar_exercicio' && palavrasIgnoradas(p) >= 4)) {
-    const livre = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros: await listarTreinos(5000), hoje: dia, memorias: await memoriasDaIa() });
+    const livre = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, ...(await lerParaConsulta(texto)), hoje: dia, memorias: await memoriasDaIa() });
     if (livre) return { status: 'resposta', origem: 'ia', mensagem: livre.mensagem };
   }
 
@@ -100,7 +103,7 @@ export default rota('POST', async (req) => {
         resposta = { ...resposta, ajuda: ajuda.mensagem };
         // Nem as regras nem a reescrita entenderam e nada foi registrado: não é um treino, a IA responde livremente.
         if (r.registros.length === 0 && !r.pendentes.some((p) => p.tipo === 'confuso')) {
-          const livre = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, registros: await listarTreinos(5000), hoje: dia, memorias: await memoriasDaIa() });
+          const livre = await perguntar({ texto, conversa: historico, rotina: rotinaInteira, ...(await lerParaConsulta(texto)), hoje: dia, memorias: await memoriasDaIa() });
           if (livre) {
             await anotarFraseNova({ frase: texto, resultado: 'IA respondeu livremente', motivo, sugestao: null, hoje: dia });
             return { status: 'resposta', origem: 'ia', mensagem: livre.mensagem };
@@ -121,7 +124,7 @@ export default rota('POST', async (req) => {
     return resposta;
   }
 
-  const antes = await listarTreinos(); // lido antes de gravar, para mostrar "da última vez"
+  const antes = await listarTreinos(undefined, { fresco: true }); // lido antes de gravar, para mostrar "da última vez"
 
   if (!forcar) {
     const duplicados = r.registros.filter((reg) => jaRegistrado(antes, reg));
