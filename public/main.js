@@ -340,10 +340,20 @@ async function enviarFila() {
   }
 }
 
+// Campo editável em vez de <textarea>: o iOS não mostra a barra ↑ ↓ ✓ do formulário num campo assim.
+// Mantém `.value` para o resto do código continuar igual.
+const campo = $('#entrada');
+Object.defineProperty(campo, 'value', {
+  get: () => campo.innerText.replace(/ /g, ' '),
+  set: (v) => {
+    campo.textContent = v;
+    ajustarEntrada();
+  },
+});
+
 function ajustarEntrada() {
-  const t = $('#entrada');
-  t.style.height = 'auto';
-  t.style.height = `${Math.min(t.scrollHeight, 120)}px`;
+  campo.dataset.vazio = campo.innerText.trim() ? '' : '1'; // placeholder via CSS
+  if (!campo.dataset.vazio) campo.scrollTop = campo.scrollHeight;
 }
 
 $('#form-chat').onsubmit = (e) => {
