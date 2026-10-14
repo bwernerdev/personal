@@ -253,3 +253,6 @@ button.cartao.item-exercicio::after { content: "\203A"; color: var(--suave); fon
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* treino do dia: lista fica levemente apagada enquanto a nova carrega */
+#lista-dia.carregando { opacity: .55; transition: opacity .15s; }

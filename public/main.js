@@ -358,16 +358,39 @@ $('#entrada').addEventListener('keydown', (e) => {
 
 // ---------- treino do dia ----------
 
+// Cada treino já visto fica na memória: ao tocar nele aparece na hora e a versão nova chega em seguida.
+const diasVistos = new Map();
+let pedidoDia = 0;
+
 async function carregarDia(treino) {
   const lista = $('#lista-dia');
-  if (!estado.dia) lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Carregando…'));
+  const chave = treino || '';
+  const meu = ++pedidoDia;
+  const visto = diasVistos.get(chave);
+  if (visto) {
+    estado.dia = visto;
+    estado.diaSelecionado = visto.selecionado;
+    renderDia();
+  } else if (!estado.dia) {
+    lista.replaceChildren(el('div', { class: 'vazio-geral' }, 'Carregando…'));
+  } else {
+    // troca o botão ativo já, enquanto a lista carrega
+    estado.diaSelecionado = treino;
+    $('#chips').querySelectorAll('button').forEach((b) => b.classList.toggle('ativa', b.textContent.replace(' ★', '') === treino));
+    lista.classList.add('carregando');
+  }
   try {
     const dados = await chamar(`/api/dia${treino ? `?treino=${encodeURIComponent(treino)}` : ''}`);
+    diasVistos.set(chave, dados);
+    diasVistos.set(dados.selecionado, dados);
+    if (meu !== pedidoDia) return; // o usuário já tocou em outro treino
     estado.dia = dados;
     estado.diaSelecionado = dados.selecionado;
     renderDia();
   } catch (e) {
-    lista.replaceChildren(el('div', { class: 'vazio-geral' }, e.message));
+    if (meu === pedidoDia && !visto) lista.replaceChildren(el('div', { class: 'vazio-geral' }, e.message));
+  } finally {
+    if (meu === pedidoDia) lista.classList.remove('carregando');
   }
 }
 
