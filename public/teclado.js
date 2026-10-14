@@ -7,6 +7,7 @@ const ICONES = {
   shift: '<svg viewBox="0 0 24 24"><path d="M12 4 3.5 13H8v6h8v-6h4.5z"/></svg>',
   shiftTrava: '<svg viewBox="0 0 24 24"><path d="M12 4 3.5 13H8v4h8v-4h4.5z"/><rect x="8" y="19" width="8" height="2"/></svg>',
   apagar: '<svg viewBox="0 0 24 24"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7zm3.4 3.6L11 10l2 2-2 2 1.4 1.4 2-2 2 2L17.8 14l-2-2 2-2-1.4-1.4-2 2z"/></svg>',
+  mic: '<svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z"/></svg>',
   enviar: '<svg viewBox="0 0 24 24"><path d="M3 20.5v-6.8l11-1.7-11-1.7V3.5L22 12z"/></svg>',
 };
 
@@ -34,7 +35,7 @@ const CAMADAS = {
     { teclas: linhaDeLetras('qwertyuiop') },
     { teclas: linhaDeLetras('asdfghjkl'), recuo: true },
     { teclas: [{ tipo: 'shift', largura: 1.5 }, ...linhaDeLetras('zxcvbnm'), { tipo: 'apagar', largura: 1.5 }] },
-    { teclas: [{ tipo: 'camada', para: 'sim1', r: '?123', largura: 1.5 }, VIRGULA, { tipo: 'espaco', largura: 5 }, PONTO, { tipo: 'enter', largura: 1.5 }] },
+    { teclas: [{ tipo: 'camada', para: 'sim1', r: '?123', largura: 1.5 }, { tipo: 'mic', largura: 1 }, VIRGULA, { tipo: 'espaco', largura: 5 }, PONTO, { tipo: 'enter', largura: 1.5 }] },
   ],
   sim1: [
     { teclas: linhaDeSimbolos('1234567890') },
@@ -50,6 +51,7 @@ const CAMADAS = {
   ],
 };
 
+const RECONHECIMENTO = typeof window !== 'undefined' ? window.SpeechRecognition || window.webkitSpeechRecognition : undefined;
 const TEMPO_SEGURAR = 350;
 const TEMPO_DUPLO_SHIFT = 400;
 
@@ -58,6 +60,7 @@ export function iniciarTeclado({ campo, raiz, aoEnviar }) {
   let shift = 0; // 0 minúscula, 1 uma maiúscula, 2 caixa alta travada
   let ultimoShift = 0;
   let aberto = null; // tecla pressionada agora
+  let ouvindo = null; // reconhecimento de voz em andamento
 
   // O campo vira só uma tela de texto: nada de teclado nativo (que traz a barra ↑ ↓ ✓).
   campo.contentEditable = 'false';
@@ -80,6 +83,7 @@ export function iniciarTeclado({ campo, raiz, aoEnviar }) {
         const el = document.createElement('div');
         el.className = `tec-linha${linha.recuo ? ' recuo' : ''}`;
         for (const t of linha.teclas) {
+          if (t.tipo === 'mic' && !RECONHECIMENTO) continue; // aparelho sem ditado: sem a tecla
           const b = document.createElement('button');
           b.type = 'button';
           b.tabIndex = -1;
@@ -92,6 +96,10 @@ export function iniciarTeclado({ campo, raiz, aoEnviar }) {
           } else if (t.tipo === 'apagar') {
             b.innerHTML = ICONES.apagar;
             b.setAttribute('aria-label', 'Apagar');
+          } else if (t.tipo === 'mic') {
+            b.innerHTML = ICONES.mic;
+            if (ouvindo) b.classList.add('ligada');
+            b.setAttribute('aria-label', 'Ditar por voz');
           } else if (t.tipo === 'enter') {
             b.innerHTML = ICONES.enviar;
             b.setAttribute('aria-label', 'Enviar');
@@ -144,6 +152,49 @@ export function iniciarTeclado({ campo, raiz, aoEnviar }) {
     aberto.escolha = filhos[i].textContent;
   }
 
+  function avisar(texto) {
+    const s = document.createElement('span');
+    s.textContent = texto;
+    balao.replaceChildren(s);
+    balao.classList.add('aviso');
+    balao.hidden = false;
+    const r = raiz.getBoundingClientRect();
+    balao.style.cssText = `left:8px;right:8px;width:auto;bottom:${window.innerHeight - r.top + 6}px`;
+    setTimeout(() => {
+      balao.hidden = true;
+      balao.classList.remove('aviso');
+    }, 3000);
+  }
+
+  // Ditado por voz (Web Speech API): o que você fala entra no fim do texto. Toque de novo para parar.
+  function alternarDitado() {
+    if (ouvindo) {
+      ouvindo.stop();
+      return;
+    }
+    const r = new RECONHECIMENTO();
+    r.lang = 'pt-BR';
+    r.interimResults = false;
+    r.continuous = false;
+    r.onresult = (e) => {
+      const fala = Array.from(e.results).map((x) => x[0].transcript).join(' ').trim();
+      if (fala) inserir((campo.value && !/\s$/.test(campo.value) ? ' ' : '') + fala + ' ');
+    };
+    r.onerror = (e) => avisar(e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'Ditado bloqueado: libere o microfone para este app nos Ajustes do iPhone.' : 'Ditado indisponível agora.');
+    r.onend = () => {
+      ouvindo = null;
+      desenhar();
+    };
+    ouvindo = r;
+    try {
+      r.start();
+    } catch {
+      ouvindo = null;
+      avisar('Ditado indisponível agora.');
+    }
+    desenhar();
+  }
+
   function aoPressionar(e) {
     const botao = e.target.closest('.tec-tecla');
     if (!botao || aberto) return;
@@ -192,6 +243,8 @@ export function iniciarTeclado({ campo, raiz, aoEnviar }) {
     } else if (t.tipo === 'camada') {
       camada = t.para;
       desenhar();
+    } else if (t.tipo === 'mic') {
+      alternarDitado();
     } else if (t.tipo === 'espaco') {
       inserir(' ');
     } else if (t.tipo === 'enter') {

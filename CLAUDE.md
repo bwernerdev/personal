@@ -11,7 +11,7 @@ App de treino por chat (PWA) ligado ao Notion. Leia o [README.md](README.md) ant
 - **O chat é um interpretador de regras (`lib/parser.js`); uma IA é só um ajudante opcional** (`lib/ia.js`, pedido pelo usuário em 2026-10; Gemini grátis por padrão, Claude como alternativa): só roda quando as regras não entendem o texto e existe `GEMINI_API_KEY` ou `ANTHROPIC_API_KEY`. Ela **nunca grava**: propõe uma reescrita no formato de palavras-chave, todo número dela precisa existir na mensagem original, ela passa de novo pelo parser e o usuário confirma antes de gravar. Sem chave, o app funciona só com regras. O caminho principal para o chat melhorar é ensinar as regras com as frases guardadas em "Frases novas" (`scripts/README.md`), não usar mais IA. Extensões pedidas pelo usuário (2026-10): responder perguntas de consulta sobre os treinos (`perguntar`, só leitura) e, quando as regras não entendem nada, responder livremente (`perguntar`, depois das regras e da reescrita). Não amplie o uso de LLM (cálculo ou sugestão de carga, gravação) sem o usuário pedir.
 - **Segredos nunca no código nem no front-end.** `NOTION_TOKEN`, `APP_CODE`, `GEMINI_API_KEY` e `ANTHROPIC_API_KEY` só existem como variáveis de ambiente no servidor. Nunca commite `.env`.
 - **Nunca invente dados de treino.** Séries, repetições e carga só são gravadas se o usuário informou, ou confirmou explicitamente usar o valor do personal (`usarRotina`). Se algo faltar, o servidor pergunta e **não grava nada**.
-- O app **mostra o último treino**; não calcula nem sugere carga (decisão do usuário).
+- O app **mostra o último treino**. Só sugere carga ou progressão quando o usuário **pede no chat** ("quanto devo colocar no supino?"; liberado em 2026-10-14); nunca por conta própria e nunca grava a sugestão.
 
 ## Comandos
 
@@ -26,6 +26,7 @@ Dois bancos (IDs em `lib/notion.js`): **Rotina** e **Treinos**. Se mudar colunas
 
 - `lib/parser.js` — interpretador de regras (`interpretar`, `lerParte`, `juntarSoltos`, `acharExercicio`; exporta `ATALHO`, `SINONIMOS`). Mexeu aqui: `node --test`.
 - `lib/linguagem.js` — texto: números por extenso, `NxM`, `ENFEITES`, datas, `dividirItens`.
+- `lib/correcao.js` — "apaga o último", "errei, era 45", "corrige a puxada para 40" (regras; mexe nos registros, resposta diz antes → depois).
 - `lib/ia.js` — ajudante opcional (Gemini/Claude): reescreve (com exemplos de `frases-naturais.js`), responde consultas/conversa livre (busca do Google, função `buscar_registros`, resumo de `estatisticas.js`, lembranças de `memoria.js`); valida números, nunca grava.
 - `lib/notion.js` / `lib/store.js` — Notion (IDs dos bancos) / camada que escolhe Notion ou arquivo local (`data/*.local.json`).
 - `lib/frases-naturais.js` — tabela de frases que as regras devem entender (+ `.test.js`).
