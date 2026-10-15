@@ -42,7 +42,7 @@ const dataComDia = (iso) => (iso ? `${data(iso)}, ${DIAS_SEMANA[new Date(`${iso}
 function resumo(r) {
   const partes = [];
   if (r.series !== null && r.series !== undefined) partes.push(`${r.series}×${r.reps ?? '—'}`);
-  if (r.carga !== null && r.carga !== undefined) partes.push(`${num(r.carga)} kg`);
+  if (r.carga !== null && r.carga !== undefined) partes.push(`${virgula(r.carga)} kg`);
   if (r.obs && !/^bloco \d+\/\d+$/.test(r.obs)) partes.push(r.obs); // "bloco 1/2" é só a ordem das cargas
   return partes.join(' · ') || 'sem detalhes';
 }
