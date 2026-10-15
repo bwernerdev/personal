@@ -197,3 +197,11 @@ Registro: `/` separa exercícios ("supino 24 4x10 / puxada 50 4x12"); "dia 12/10
 "sem carga", "sem peso" e "peso do corpo" valem **0 kg** (sem perguntar); o mesmo exercício com outro peso sem repetir o nome ("inc 50 4x12 e 45 2x10" ou "inc 50 4x12, 45 2x10") vira blocos 1/2 e 2/2 (se o item seguinte tem nome, os números são dele).
 
 Mais: uma carga e as reps de cada série ("remada baixa 40kg 12 12 10" = 40x12, 40x12, 40x10; precisa de 3+ séries para não confundir com "24 5 10"); exercício que existe em mais de um treino usa o treino que você já registrou hoje (se não houver, pergunta); "ombro" dentro do nome ("desenvolvimento de ombro máquina") não é tratado como treino.
+
+### Registro em lista, "não fiz" e cardio (2026-10-14)
+
+- **Série por série:** "Flexora: 30kg 10 reps, 30kg 9 reps, 30kg 9 reps" (separadas por vírgula, `;`, `/`, "e" ou uma por linha; "30 x 10", "30kg - 10 reps", "25 10 reps"). Série sem carga usa a anterior; "Flexora 30kg: 10, 9, 9" usa a carga do cabeçalho; "(pesada)" no fim vai para Observações.
+- **"Não fiz":** "Extensora: não fiz", "não fiz a extensora", "pulei a extensora" (sem números) não registram nada; o chat responde "Ok, não registrei nada".
+- **Cardio:** "Cardio: 20min esteira, slope 5% velocidade 6", "full3: cardio 20 min" ou "esteira 20 min" (também bike, elíptico, corrida, caminhada...) viram um registro **Cardio** sem séries/reps/carga, com os dados em Observações. A linha "Cardio" existe na Rotina do Notion em cada Full body (grupo Cardio).
+- **Treino pela própria mensagem:** exercício que existe em mais de um treino (flexora, remada) segue o único treino que os outros exercícios da mensagem indicam (sem precisar de treino registrado hoje).
+- A IA (reescrita) conhece esses formatos: ver `montarSistema` em `lib/ia.js`.
