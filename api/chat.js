@@ -84,6 +84,11 @@ export default rota('POST', async (req) => {
     if (livre) return { status: 'resposta', origem: 'ia', mensagem: livre.mensagem };
   }
 
+  // Só "não fiz X" (nada a registrar): confirma em vez de perguntar.
+  if (r.pulados?.length && r.registros.length === 0 && r.pendentes.length === 0 && r.erros.length === 0) {
+    return { status: 'resposta', origem: 'regras', mensagem: `Ok, não registrei nada: ${r.pulados.join(' · ')}` };
+  }
+
   if (!r.pronto) {
     // Pergunta de falta de carga/séries e dúvida entre exercícios são das regras; a IA só ajuda
     // quando o texto não foi entendido (erro) ou os números estão confusos.
